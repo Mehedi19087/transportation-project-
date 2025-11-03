@@ -1,0 +1,1 @@
+ALTER TABLE products ADD COLUMN trip_fields JSONB DEFAULT '[]'::jsonb;

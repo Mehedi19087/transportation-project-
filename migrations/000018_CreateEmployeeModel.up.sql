@@ -1,0 +1,22 @@
+CREATE TABLE employees (
+    id BIGSERIAL PRIMARY KEY,
+    full_name TEXT,
+    email TEXT,
+    mobile TEXT,
+    birth_date TEXT,
+    gender TEXT,
+    blood_group TEXT,
+    designation TEXT,
+    employment_type TEXT,
+    branch_name TEXT,
+    join_date TEXT,
+    salary DECIMAL(10,2),
+    payment_method TEXT,
+    nid TEXT,
+    address TEXT,
+    status TEXT,
+    image TEXT,
+    role TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
