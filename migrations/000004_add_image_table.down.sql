@@ -1,0 +1,1 @@
+alter table dealers drop column if exists image_url;

@@ -1,0 +1,1 @@
+create index idx_bills_product_id on bills(product_id);

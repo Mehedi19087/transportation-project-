@@ -1,0 +1,1 @@
+ALTER TABLE products ADD COLUMN bill_fields TEXT[] DEFAULT ARRAY[]::TEXT[];

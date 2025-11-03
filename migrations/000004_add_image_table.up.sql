@@ -1,0 +1,1 @@
+alter table drivers add COLUMN image_url text;
