@@ -23,7 +23,6 @@ type OutSideTrip struct {
 	 CreatedAt time.Time `json:"created_at"`
 	 UpdatedAt time.Time `json:"updated_at"`
 }
-
 func(OutSideTrip) TableName() string {
 	 return "outside_trips"
 }

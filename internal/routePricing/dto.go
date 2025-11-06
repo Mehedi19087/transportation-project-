@@ -23,3 +23,8 @@ type RoutePricingUpdateReq struct {
     Notes        string  `json:"notes"`
     Status       string  `json:"status"`
 }
+
+type RateRequest struct {
+    LoadPoint   string `json:"load_point" binding:"required"`
+    UnloadPoint string `json:"unload_point" binding:"required"`
+}

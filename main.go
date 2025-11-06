@@ -2,16 +2,18 @@ package main
 
 import (
 	"log"
-	employee "transportation/internal/Employee"
-	outsidetrip "transportation/internal/OutSide_Trip"
-	trip "transportation/internal/Trip"
+	"transportation/internal/Employee"
+	"transportation/internal/OutSide_Trip"
+	"transportation/internal/Trip"
 	"transportation/internal/bill"
 	"transportation/internal/customer"
 	"transportation/internal/database"
 	"transportation/internal/dealer"
 	"transportation/internal/driver"
 	"transportation/internal/media"
-	routepricing "transportation/internal/routePricing"
+	"transportation/internal/ownVehicle"
+	"transportation/internal/purchase"
+	"transportation/internal/routePricing"
 	"transportation/internal/vehicle"
 
 	"github.com/gin-contrib/cors"
@@ -40,6 +42,8 @@ func main() {
 	tripRepo:=    trip.NewRepository(db)
 	employeeRepo:= employee.NewEmployeeRepo(db)
 	outsideRepo := outsidetrip.NewOutSideTripRepo(db)
+	ownVehicleRepo := ownvehicle.NewRepository(db)
+	purchaseRepo   := purchase.NewPurchaseRepo(db)
     
    
 
@@ -53,6 +57,9 @@ func main() {
 	tripService:=    trip.NewService(tripRepo)
 	employeeService:= employee.NewEmployeeService(employeeRepo)
 	outsideService:= outsidetrip.NewOutSideTripService(outsideRepo)
+    ownVehicleService := ownvehicle.NewService(ownVehicleRepo)
+	purchaseService:= purchase.NewPurchaseService(purchaseRepo)
+    
     
 
 
@@ -65,6 +72,9 @@ func main() {
 	tripHandler:=    trip.NewHandler(tripService)
 	employeeHandler:= employee.NewEmployeeHandler(employeeService)
 	outsideHandler    := outsidetrip.NewOutSideTripHandler(outsideService)
+	ownVehicleHandler := ownvehicle.NewHandler(ownVehicleService)
+	purchaseHandler:=    purchase.NewPurchaseHandler(purchaseService,uploader)
+    
     
 
 
@@ -92,6 +102,8 @@ func main() {
 	trip.SetupRoutes(router,tripHandler)
 	employee.SetupRoutes(router,employeeHandler)
 	outsidetrip.SetupRoutes(router,outsideHandler)
+	ownvehicle.SetupRoutes(router, ownVehicleHandler)
+	purchase.SetupRoutes(router,purchaseHandler)
 
 
 	if err := router.Run(":8080"); err != nil {
