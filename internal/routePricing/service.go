@@ -12,6 +12,7 @@ type RoutePricingService interface {
     UpdateRoutePricing(id uint, req *RoutePricingUpdateReq) error
     DeleteRoutePricing(id uint) error
     GetAllRoutePricing(page, pageSize int) ([]RoutePricing, int64, error)
+    GetRateByLocations(loadPoint, unloadPoint string) (int, error)
 }
 
 type routePricingService struct {
@@ -108,4 +109,12 @@ func (s *routePricingService) GetAllRoutePricing(page, pageSize int) ([]RoutePri
         return nil, 0, fmt.Errorf("list route pricings: %w", err)
     }
     return routePricings, total, nil
+}
+
+func (s *routePricingService) GetRateByLocations(loadPoint, unloadPoint string) (int, error) {
+    rate, err := s.repo.GetRateByLocations(loadPoint, unloadPoint)
+    if err != nil {
+        return 0, errors.New("rate not found for the given locations")
+    }
+    return rate, nil
 }

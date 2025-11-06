@@ -151,3 +151,19 @@ func (h *RoutePricingHandler) GetAllRoutePricing(ctx *gin.Context) {
         },
     })
 }
+
+func (h *RoutePricingHandler) GetRate(c *gin.Context) {
+    var req RateRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+        return
+    }
+
+    rate, err := h.service.GetRateByLocations(req.LoadPoint, req.UnloadPoint)
+    if err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"rate": rate})
+}

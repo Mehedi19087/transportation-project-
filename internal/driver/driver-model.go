@@ -22,7 +22,7 @@ type Driver struct {
 
 type Vehicle struct {
     ID           uint      `json:"id" gorm:"primaryKey"`
-    DriverID     *uint     `json:"driver_id"`  // nullable FK, can be NULL if unassigned
+    DriverID     *uint     `json:"driver_id"` 
     VehicleName  string    `json:"vehicle_name" gorm:"not null"`
     Category     string    `json:"category" gorm:"not null"`
     Size         string    `json:"size"`

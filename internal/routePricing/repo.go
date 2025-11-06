@@ -11,6 +11,7 @@ type RoutePricingRepo interface {
     GetAll(offset, limit int) ([]RoutePricing, int64, error)
     Get(id uint) (*RoutePricing, error)
     Delete(id uint) error
+    GetRateByLocations(load, unload string) (int, error)
 }
 
 type routePricingRepo struct {
@@ -55,4 +56,12 @@ func (r *routePricingRepo) GetAll(offset, limit int) ([]RoutePricing, int64, err
         return nil, 0, err
     }
     return routePricings, total, nil
+}
+
+func(r *routePricingRepo) GetRateByLocations(loadPoint, unloadPoint string) (int, error) {
+     var routePricing RoutePricing 
+     if err := r.db.Where("load_point = ? AND unload_point = ?",loadPoint, unloadPoint).First(&routePricing).Error; err!= nil {
+         return 0, err 
+     }
+     return routePricing.Rate, nil 
 }

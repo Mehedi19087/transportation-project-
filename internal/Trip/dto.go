@@ -1,6 +1,9 @@
 package trip 
 
-
+import (
+    "encoding/json"
+    "time"
+)
 type CreateTripReq struct {
     ProductID     uint     `json:"product_id" binding:"required"`
     BrandName     *string  `json:"brand_name"`
@@ -79,4 +82,22 @@ type UpdateTripReq struct {
     Status        *string  `json:"status"`
     CreatedBy     *string  `json:"created_by"`
     ApprovedBy    *string  `json:"approved_by"`
+}
+
+
+func (t Trip) MarshalJSON() ([]byte, error) {
+    loc, err := time.LoadLocation("Asia/Dhaka")
+    if err != nil {
+        loc = time.FixedZone("BDT", 6*60*60)
+    }
+    type Alias Trip
+    return json.Marshal(&struct {
+        CreatedAt string `json:"created_at"`
+        UpdatedAt string `json:"updated_at"`
+        *Alias
+    }{
+        CreatedAt: t.CreatedAt.In(loc).Format("2006-01-02 15:04:05"),
+        UpdatedAt: t.UpdatedAt.In(loc).Format("2006-01-02 15:04:05"),
+        Alias:     (*Alias)(&t),
+    })
 }

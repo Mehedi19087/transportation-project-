@@ -3,7 +3,6 @@ package routepricing
 import "time"
 
 
-
 type RoutePricing struct {
 	 ID   uint `json:"id" gorm:"primaryKey"`
 	 CustomerName string `json:"customer_name" gorm:"not null"`
