@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"errors"
 	"gorm.io/gorm"
+    // "encoding/json"
+    // "log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -139,7 +141,7 @@ func(h *ProductHandler) GetAllProducts(ctx *gin.Context) {
 		},
 	})
 
-	
+
 }
 
 func (h *ProductHandler) GetCompanyProducts(ctx *gin.Context) {
@@ -177,6 +179,9 @@ func (h *ProductHandler) CreateBill(ctx *gin.Context) {
         })
         return
     }
+    // if b, err := json.MarshalIndent(req, "", "  "); err == nil {
+    //     log.Println("CreateBill payload:\n" + string(b))
+    // }
 
     err := h.service.CreateBill(&req)
     if err != nil {
