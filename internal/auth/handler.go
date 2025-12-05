@@ -18,6 +18,13 @@ import (
 )
 
 func GoogleLogin(c *gin.Context) {
+
+	  if config.GoogleOAuthConfig == nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "OAuth config not initialized",
+        })
+        return
+    }
 	state := randomState()
 	// Persist state in an HttpOnly cookie for callback validation
 	//c.SetCookie("oauth_state", state, 600, "/", "", false, true)

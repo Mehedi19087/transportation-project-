@@ -1,29 +1,47 @@
 package config
 
 import (
-	"log"
-	"os"
+    "fmt"
+    "log"
+    "os"
 
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
+    "golang.org/x/oauth2"
+    "golang.org/x/oauth2/google"
 )
 
 var GoogleOAuthConfig *oauth2.Config
 
-func InitGoogleOAuthConfig() {
-	clientID := os.Getenv("GOOGLE_CLIENT_ID")
-	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	redirectURL := os.Getenv("GOOGLE_REDIRECT_URL")
+func InitGoogleOAuthConfig() error {
+    clientID := os.Getenv("GOOGLE_CLIENT_ID")
+    clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+    redirectURL := os.Getenv("GOOGLE_REDIRECT_URL")
 
-	if clientID == "" || clientSecret == "" || redirectURL == "" {
-		log.Panic("missing GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, or GOOGLE_REDIRECT_URL")
-	}
+    // Debug logs
+    log.Printf("GOOGLE_CLIENT_ID: %s", clientID)
+    log.Printf("GOOGLE_CLIENT_SECRET: %s", clientSecret)
+    log.Printf("GOOGLE_REDIRECT_URL: %s", redirectURL)
 
-	GoogleOAuthConfig = &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		RedirectURL:  redirectURL,
-		Scopes:       []string{"openid", "email", "profile"},
-		Endpoint:     google.Endpoint,
-	}
+    if clientID == "" {
+        return fmt.Errorf("GOOGLE_CLIENT_ID is empty")
+    }
+    if clientSecret == "" {
+        return fmt.Errorf("GOOGLE_CLIENT_SECRET is empty")
+    }
+    if redirectURL == "" {
+        return fmt.Errorf("GOOGLE_REDIRECT_URL is empty")
+    }
+
+    GoogleOAuthConfig = &oauth2.Config{
+        ClientID:     clientID,
+        ClientSecret: clientSecret,
+        RedirectURL:  redirectURL,
+        Scopes: []string{
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+        },
+        Endpoint: google.Endpoint,
+    }
+
+    log.Println("✅ Google OAuth Config initialized successfully")
+    return nil
 }

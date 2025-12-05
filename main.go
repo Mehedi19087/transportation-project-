@@ -96,7 +96,9 @@ func main() {
 		MaxAge:           12 * 60 * 60, // 12 hours
 	}))
 	
-    config.InitGoogleOAuthConfig() // or whatever 
+      if err := config.InitGoogleOAuthConfig(); err != nil {
+        log.Printf("Failed to initialize Google OAuth: %v", err)
+    }// or whatever 
 
 	router.GET("/auth/google/login", auth.GoogleLogin)
     router.GET("/auth/google/callback", auth.GoogleCallback)
