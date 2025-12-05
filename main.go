@@ -17,6 +17,8 @@ import (
 	"transportation/internal/vehicle"
 	"transportation/internal/auth"
 
+	"transportation/internal/config"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -93,6 +95,8 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * 60 * 60, // 12 hours
 	}))
+	
+    config.InitGoogleOAuthConfig() // or whatever 
 
 	router.GET("/auth/google/login", auth.GoogleLogin)
     router.GET("/auth/google/callback", auth.GoogleCallback)
