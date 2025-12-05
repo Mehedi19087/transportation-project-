@@ -15,6 +15,7 @@ import (
 	"transportation/internal/purchase"
 	"transportation/internal/routePricing"
 	"transportation/internal/vehicle"
+	"transportation/internal/auth"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -92,6 +93,9 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * 60 * 60, // 12 hours
 	}))
+
+	router.GET("/auth/google/login", auth.GoogleLogin)
+    router.GET("/auth/google/callback", auth.GoogleCallback)
 
 	customer.SetupRoutes(router,customerHanlder)
 	dealer.SetupRoutes(router,dealerHandler)
