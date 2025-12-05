@@ -13,9 +13,8 @@ import (
 var DB *gorm.DB 
 
 func ConnectDB() (*gorm.DB, error){
-	 if err:= godotenv.Load(); err != nil {
-		 log.Panic("error of loading .env file")
-	 }
+
+	 _= godotenv.Load()
 
 	//  dbname := os.Getenv("DB_NAME")
 	//  dbuser := os.Getenv("DB_USER")
