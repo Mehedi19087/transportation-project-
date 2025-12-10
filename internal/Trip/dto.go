@@ -44,6 +44,8 @@ type CreateTripReq struct {
     Rent          *float64 `json:"rent"`
     CreatedBy     *string  `json:"created_by"`
     ApprovedBy    *string  `json:"approved_by"`
+    Alt5           *float64  `json:"alt5"`
+    Vat10          *float64   `json:"vat10"`
 }
 
 type UpdateTripReq struct {
@@ -86,6 +88,8 @@ type UpdateTripReq struct {
     ApprovedBy    *string  `json:"approved_by"`
     Dealer        *string  `json:"dealer"`
     Rent          *float64 `json:"rent"`
+    Alt5           *float64  `json:"alt5"`
+    Vat10          *float64   `json:"vat10"`
 }
 
 

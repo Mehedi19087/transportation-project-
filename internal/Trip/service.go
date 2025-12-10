@@ -340,8 +340,10 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
 		ApprovedBy:    req.ApprovedBy,
 		Dealer: req.Dealer,
 		Rent: req.Rent,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		Alt5: req.Alt5,
+		Vat10: req.Vat10,
+		CreatedAt:     time.Now().UTC(),
+		UpdatedAt:     time.Now().UTC(),
 	}
 
 	// Calculate all dependent fields
@@ -407,6 +409,12 @@ func (s *service) UpdateTrip(id uint, req *UpdateTripReq) error {
     if req.Rent != nil {
         item.Rent = req.Rent
     }
+	if req.Alt5!= nil {
+		item.Alt5= req.Alt5
+	}
+	if req.Vat10 != nil {
+		item.Vat10=req.Vat10
+	}
 	// ... rest of existing code ...
 
 	item.UpdatedAt = time.Now()
