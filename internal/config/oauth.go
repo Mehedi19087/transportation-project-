@@ -16,10 +16,10 @@ func InitGoogleOAuthConfig() error {
     clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
     redirectURL := os.Getenv("GOOGLE_REDIRECT_URL")
 
-    // Debug logs
-    log.Printf("GOOGLE_CLIENT_ID: %s", clientID)
-    log.Printf("GOOGLE_CLIENT_SECRET: %s", clientSecret)
-    log.Printf("GOOGLE_REDIRECT_URL: %s", redirectURL)
+    // // Debug logs
+    // log.Printf("GOOGLE_CLIENT_ID: %s", clientID)
+    // log.Printf("GOOGLE_CLIENT_SECRET: %s", clientSecret)
+    // log.Printf("GOOGLE_REDIRECT_URL: %s", redirectURL)
 
     if clientID == "" {
         return fmt.Errorf("GOOGLE_CLIENT_ID is empty")

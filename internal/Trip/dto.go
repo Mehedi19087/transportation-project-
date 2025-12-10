@@ -40,6 +40,8 @@ type CreateTripReq struct {
     TransportType *string  `json:"transport_type"`
     Remarks       *string  `json:"remarks"`
     Status        *string  `json:"status"`
+    Dealer        *string  `json:"dealer"`
+    Rent          *float64 `json:"rent"`
     CreatedBy     *string  `json:"created_by"`
     ApprovedBy    *string  `json:"approved_by"`
 }
@@ -82,6 +84,8 @@ type UpdateTripReq struct {
     Status        *string  `json:"status"`
     CreatedBy     *string  `json:"created_by"`
     ApprovedBy    *string  `json:"approved_by"`
+    Dealer        *string  `json:"dealer"`
+    Rent          *float64 `json:"rent"`
 }
 
 

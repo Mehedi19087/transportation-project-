@@ -5,17 +5,18 @@ import (
 	"transportation/internal/Employee"
 	"transportation/internal/OutSide_Trip"
 	"transportation/internal/Trip"
+	"transportation/internal/auth"
 	"transportation/internal/bill"
 	"transportation/internal/customer"
 	"transportation/internal/database"
 	"transportation/internal/dealer"
 	"transportation/internal/driver"
+	"transportation/internal/helper"
 	"transportation/internal/media"
 	"transportation/internal/ownVehicle"
 	"transportation/internal/purchase"
 	"transportation/internal/routePricing"
 	"transportation/internal/vehicle"
-	"transportation/internal/auth"
 
 	"transportation/internal/config"
 
@@ -47,6 +48,7 @@ func main() {
 	outsideRepo := outsidetrip.NewOutSideTripRepo(db)
 	ownVehicleRepo := ownvehicle.NewRepository(db)
 	purchaseRepo   := purchase.NewPurchaseRepo(db)
+	helperRepo     :=helper.NewHelperRepo(db)
     
    
 
@@ -57,11 +59,12 @@ func main() {
 	vehicleService := vehicle.NewVehicleService(vehicleRepo)
 	routePricingService := routepricing.NewRoutePricingService(routePricingRepo)
 	productService:= bill.NewProductService(productRepo,customerRepo)
-	tripService:=    trip.NewService(tripRepo)
+	tripService:=    trip.NewService(tripRepo,routePricingService)
 	employeeService:= employee.NewEmployeeService(employeeRepo)
 	outsideService:= outsidetrip.NewOutSideTripService(outsideRepo)
     ownVehicleService := ownvehicle.NewService(ownVehicleRepo)
 	purchaseService:= purchase.NewPurchaseService(purchaseRepo)
+	helperService  := helper.NewHelperService(helperRepo)
     
     
 
@@ -77,6 +80,7 @@ func main() {
 	outsideHandler    := outsidetrip.NewOutSideTripHandler(outsideService)
 	ownVehicleHandler := ownvehicle.NewHandler(ownVehicleService)
 	purchaseHandler:=    purchase.NewPurchaseHandler(purchaseService,uploader)
+	helperHandler:= helper.NewHelperHandler(helperService)
     
     
 
@@ -98,7 +102,7 @@ func main() {
 	
       if err := config.InitGoogleOAuthConfig(); err != nil {
         log.Printf("Failed to initialize Google OAuth: %v", err)
-    }// or whatever 
+      } 
 
 	router.GET("/auth/google/login", auth.GoogleLogin)
     router.GET("/auth/google/callback", auth.GoogleCallback)
@@ -114,6 +118,7 @@ func main() {
 	outsidetrip.SetupRoutes(router,outsideHandler)
 	ownvehicle.SetupRoutes(router, ownVehicleHandler)
 	purchase.SetupRoutes(router,purchaseHandler)
+	helper.SetupRoutes(router,helperHandler)
 
 
 	if err := router.Run(":8080"); err != nil {

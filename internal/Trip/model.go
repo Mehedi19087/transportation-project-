@@ -1,7 +1,9 @@
 package trip
 
 import (
-    "time"
+	"time"
+
+	"gorm.io/gorm"
 )
 
 type Trip struct {
@@ -43,6 +45,14 @@ type Trip struct {
     Status        *string    `json:"status"`
     CreatedBy     *string    `json:"created_by"`
     ApprovedBy    *string    `json:"approved_by"`
+    Profit        *float64   `json:"profit"`
+    Alt5          *float64   `json:"alt5"`
+    Vat10         *float64   `json:"vat10"`
+    Dealer        *string    `json:"dealer"`
+    Rent          *float64   `json:"rent"`  
+
+
     CreatedAt     time.Time  `json:"created_at"`
     UpdatedAt     time.Time  `json:"updated_at"`
+    DeletedAt     gorm.DeletedAt `json:"_" gorm:"index"`
 }

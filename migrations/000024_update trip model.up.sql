@@ -1,0 +1,7 @@
+ALTER TABLE trips
+    ADD COLUMN IF NOT EXISTS profit    DECIMAL(12,2),
+    ADD COLUMN IF NOT EXISTS alt5      DECIMAL(12,2),
+    ADD COLUMN IF NOT EXISTS vat10     DECIMAL(12,2),
+    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
+
+CREATE INDEX IF NOT EXISTS ix_trips_deleted_at ON trips (deleted_at);

@@ -1,0 +1,7 @@
+DROP INDEX IF EXISTS ix_trips_deleted_at;
+
+ALTER TABLE trips
+    DROP COLUMN IF EXISTS profit,
+    DROP COLUMN IF EXISTS alt5,
+    DROP COLUMN IF EXISTS vat10,
+    DROP COLUMN IF EXISTS deleted_at;
