@@ -285,7 +285,7 @@ func (s *service) calculateFields(item *Trip) error {
 	// if item.UnitPrice != nil {
 	// 	unitPrice = *item.UnitPrice
 	// }
-	profit := (totalRate + (routeRate * 0.20)) - routeRate
+	profit := routeRate - (totalRate + (routeRate * 0.20))
 	item.Profit = &profit
 
 	// Set default status
