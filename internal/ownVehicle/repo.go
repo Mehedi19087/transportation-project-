@@ -68,3 +68,70 @@ func (r *repo) CreateOwnVehicle(item *OwnVehicle) error {
         DoNothing: true,
     }).Create(item).Error
 }
+
+
+type OwnVehicleTripRepository interface {
+     Create(ownVehicleTrip *OwnVehicleTrip) error 
+     Get(id uint) (*OwnVehicleTrip, error)
+     GetAll(offset, limit int) ([]OwnVehicleTrip, int64, error)
+     Update(ownVehicleTrip *OwnVehicleTrip) error
+     Delete(id uint) error
+     GetByDriverAndDateRange(driverName string, startUTC, endUTC time.Time) ([]OwnVehicleTrip, error)
+}
+
+type ownVehicleTripRepository struct {
+     db *gorm.DB 
+}
+
+func NewOwnVehicleTripRepository(db *gorm.DB) OwnVehicleTripRepository {
+     return &ownVehicleTripRepository{db: db} 
+}
+
+func (r *ownVehicleTripRepository) Create(ownVehicleTrip *OwnVehicleTrip) error {
+     return r.db.Create(ownVehicleTrip).Error 
+}
+
+func (r *ownVehicleTripRepository) Get(id uint) (*OwnVehicleTrip, error) {
+     var trip OwnVehicleTrip
+     if err := r.db.First(&trip, id).Error; err != nil {
+          return nil, err
+     }
+     return &trip, nil
+}
+
+func (r *ownVehicleTripRepository) GetAll(offset, limit int) ([]OwnVehicleTrip, int64, error) {
+     var total int64
+     var trips []OwnVehicleTrip
+     
+     if err := r.db.Model(&OwnVehicleTrip{}).Count(&total).Error; err != nil {
+          return nil, 0, err
+     }
+     
+     if err := r.db.Order("created_at DESC").
+          Limit(limit).Offset(offset).
+          Find(&trips).Error; err != nil {
+          return nil, 0, err
+     }
+     
+     return trips, total, nil
+}
+
+func (r *ownVehicleTripRepository) Update(ownVehicleTrip *OwnVehicleTrip) error {
+     return r.db.Save(ownVehicleTrip).Error
+}
+
+func (r *ownVehicleTripRepository) Delete(id uint) error {
+     return r.db.Delete(&OwnVehicleTrip{}, id).Error
+}
+
+func (r *ownVehicleTripRepository) GetByDriverAndDateRange(driverName string, startUTC, endUTC time.Time) ([]OwnVehicleTrip, error) {
+    var trips []OwnVehicleTrip
+
+    if err:= r.db.Where("driver_name = ? AND created_at>= ? AND created_at<= ?",driverName, startUTC,endUTC).Order("created_at DESC").Find(&trips).Error; err != nil {
+         return nil, err 
+    }
+
+    return trips , nil 
+
+
+}

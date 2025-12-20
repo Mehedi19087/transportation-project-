@@ -17,6 +17,7 @@ import (
 	"transportation/internal/purchase"
 	"transportation/internal/routePricing"
 	"transportation/internal/vehicle"
+	dailysidecash "transportation/internal/DailySideCash"
 
 	"transportation/internal/config"
 
@@ -49,6 +50,8 @@ func main() {
 	ownVehicleRepo := ownvehicle.NewRepository(db)
 	purchaseRepo   := purchase.NewPurchaseRepo(db)
 	helperRepo     :=helper.NewHelperRepo(db)
+	OwnVehicleTripRepo := ownvehicle.NewOwnVehicleTripRepository(db)  
+	dailySideCashRepo := dailysidecash.NewDailySideCashRepo(db)
     
    
 
@@ -65,7 +68,8 @@ func main() {
     ownVehicleService := ownvehicle.NewService(ownVehicleRepo)
 	purchaseService:= purchase.NewPurchaseService(purchaseRepo)
 	helperService  := helper.NewHelperService(helperRepo)
-    
+	ownVehicleTripService:= ownvehicle.NewOwnVehicleTripService(OwnVehicleTripRepo)
+    dailySideCashService := dailysidecash.NewService(dailySideCashRepo)
     
 
 
@@ -81,8 +85,8 @@ func main() {
 	ownVehicleHandler := ownvehicle.NewHandler(ownVehicleService)
 	purchaseHandler:=    purchase.NewPurchaseHandler(purchaseService,uploader)
 	helperHandler:= helper.NewHelperHandler(helperService)
-    
-    
+	ownVehicleTripHandler:= ownvehicle.NewOwnVehicleTripHandler(ownVehicleTripService)
+    dailySideCashHandler := dailysidecash.NewHandler(dailySideCashService)    
 
 
 
@@ -119,7 +123,8 @@ func main() {
 	ownvehicle.SetupRoutes(router, ownVehicleHandler)
 	purchase.SetupRoutes(router,purchaseHandler)
 	helper.SetupRoutes(router,helperHandler)
-
+	ownvehicle.SetupRoutess(router,ownVehicleTripHandler)
+    dailysidecash.SetupRoutes(router, dailySideCashHandler)
 
 	if err := router.Run(":8080"); err != nil {
     log.Fatalf("server failed: %v", err)
