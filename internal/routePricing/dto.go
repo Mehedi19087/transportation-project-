@@ -2,7 +2,7 @@ package routepricing
 
 type RoutePricingReq struct {
     CustomerName string  `json:"customer_name" binding:"required"`
-    Size         int     `json:"size" binding:"required"`
+    Size         int     `json:"size"`
     LoadPoint    string  `json:"load_point" binding:"required"`
     UnloadPoint  string  `json:"unload_point" binding:"required"`
     Rate         int     `json:"rate" binding:"required"`
