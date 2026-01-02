@@ -301,6 +301,13 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
 	if req.ProductID == 0 {
 		return errors.New("product_id is required")
 	}
+	rate, err := s.routePricingService.GetRateByLocations(*req.LoadPoint, *req.UnloadPoint)
+	if err != nil {
+	   return errors.New("route pricing is missing")
+	}
+
+	unitPrice := float64(rate)
+	vat:=unitPrice*0.2
 	item := &Trip{
 		ProductID:     req.ProductID,
 		BrandName:     req.BrandName,
@@ -322,7 +329,7 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
 		Route:         req.Route,
 		District:      req.District,
 		Quantity:      req.Quantity,
-		UnitPrice:     req.UnitPrice,
+		UnitPrice:     &unitPrice,
 		Cash:          req.Cash,
 		Advance:       req.Advance,
 		Due:           req.Due,
@@ -341,7 +348,7 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
 		Dealer: req.Dealer,
 		Rent: req.Rent,
 		Alt5: req.Alt5,
-		Vat10: req.Vat10,
+		Vat10: &vat,
 		CreatedAt:     time.Now().UTC(),
 		UpdatedAt:     time.Now().UTC(),
 	}

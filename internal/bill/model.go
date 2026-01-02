@@ -16,7 +16,7 @@ type Product struct {
      BillFields pq.StringArray `json:"bill_fields" gorm:"type:text[]"`
 
 	 CreatedAt time.Time `json:"created_at"`
-}
+}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-0
 
 type Bill struct {
     ID                    uint      `json:"id" gorm:"primaryKey"`

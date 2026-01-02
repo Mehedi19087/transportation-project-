@@ -25,7 +25,6 @@ type OwnVehicle struct {
 	 UpdatedAt time.Time `json:"updated_at"`
 	 DeletedAt gorm.DeletedAt `json:"-"`
 }
- 
 func (OwnVehicle) TableName() string {
     return "own_vehicles"
 }
