@@ -1,10 +1,15 @@
 package dealer
 
-import "github.com/gin-gonic/gin"
+import (
+	"transportation/internal/auth"
+
+	"github.com/gin-gonic/gin"
+)
 
 
 func SetupRoutes(router *gin.Engine, dealerhandler *DealerHanlder) {
 	 v1:= router.Group("/api/v1")
+	 v1.Use(auth.AuthMiddleware())
 	 v1.POST("/dealer",dealerhandler.CreateDealer)
 	 v1.GET("/dealer/:id",dealerhandler.GetDealer)
 	 v1.PUT("/dealer/:id",dealerhandler.UpdateDealer)

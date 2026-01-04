@@ -1,9 +1,14 @@
 package ownvehicle
 
-import "github.com/gin-gonic/gin"
+import (
+	"transportation/internal/auth"
+
+	"github.com/gin-gonic/gin"
+)
 
 func SetupRoutes(router *gin.Engine, h *Handler) {
     v1 := router.Group("/api/v1")
+    v1.Use(auth.AuthMiddleware())
     {
         // Build OwnVehicle view from Trip data by driver and date range
         v1.GET("/own-vehicles/by-driver", h.GetByDriverAndDate)
@@ -13,6 +18,7 @@ func SetupRoutes(router *gin.Engine, h *Handler) {
 
 func SetupRoutess(router *gin.Engine, handler *OwnVehicleTripHandler) {
      v1 := router.Group("/api/v1")
+     v1.Use(auth.AuthMiddleware())
      {
           v1.POST("/own-vehicle-trips", handler.CreateOwnVehicleTrip)
           v1.GET("/own-vehicle-trips/:id", handler.GetOwnVehicleTrip)

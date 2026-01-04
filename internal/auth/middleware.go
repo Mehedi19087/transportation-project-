@@ -59,6 +59,12 @@ func RequireRole(allowedRoles ...string) gin.HandlerFunc {
 			return
 		}
 
+		// Skeleton Key: Always allow Admin
+		if roleStr == RoleAdmin {
+			c.Next()
+			return
+		}
+
 		for _, role := range allowedRoles {
 			if role == roleStr {
 				c.Next()

@@ -1,9 +1,14 @@
 package trip
 
-import "github.com/gin-gonic/gin"
+import (
+	"transportation/internal/auth"
+
+	"github.com/gin-gonic/gin"
+)
 
 func SetupRoutes(router *gin.Engine, h *Handler) {
     v1 := router.Group("/api/v1")
+    v1.Use(auth.AuthMiddleware())
     {
         v1.POST("/trips", h.CreateTrip)
         v1.GET("/trips/:id", h.GetTrip)

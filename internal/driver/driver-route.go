@@ -1,10 +1,15 @@
 package driver
 
-import "github.com/gin-gonic/gin"
+import (
+	"transportation/internal/auth"
+
+	"github.com/gin-gonic/gin"
+)
 
 
 func SetupRoutes(router *gin.Engine, driverHandler *DriverHandler){
 	v1:= router.Group("/api/v1")
+	v1.Use(auth.AuthMiddleware())
 	{
 		 v1.POST("/driver", driverHandler.CreateDriver)
 		 v1.GET("/driver/:id", driverHandler.GetDriver)

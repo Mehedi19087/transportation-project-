@@ -34,11 +34,31 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 		return nil, fmt.Errorf("invalid date format (expected YYYY-MM-DD): %w", err)
 	}
 
+	// Calculate previous date
+	prevDate := d.AddDate(0, 0, -1)
+	//prevDateStr := prevDate.Format("2006-01-02")
+
+	// Fetch previous day's record
+	var carryOver float64 = 0
+	prevRecord, err := s.repo.GetByDate(productID, prevDate)
+	if err == nil && prevRecord != nil {
+		carryOver = prevRecord.RemainingBalance
+	} else {
+		// If previous day does not work (not found), remaining balance (carry over) will be zero
+		carryOver = 0
+	}
+
+	// Total Cash = Carry Over from yesterday + Any new Cash added today (req.Cash)
+	totalCash := carryOver + req.Cash
+
+	// Calculate Remaining Balance
+	remainingBalance := totalCash - (req.TripCost + req.OtherCost)
+
 	record := &DailySideCash{
 		Date:             d,
 		ProductID:        productID,
-		Cash:             req.Cash,
-		RemainingBalance: req.RemainingBalance,
+		Cash:             totalCash,
+		RemainingBalance: remainingBalance,
 		TripCost:         req.TripCost,
 		OtherCost:        req.OtherCost,
 		OtherCostDetails: req.OtherCostDetails,

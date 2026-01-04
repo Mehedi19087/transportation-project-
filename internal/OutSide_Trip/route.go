@@ -1,9 +1,14 @@
 package outsidetrip
 
-import "github.com/gin-gonic/gin"
+import (
+	"transportation/internal/auth"
+
+	"github.com/gin-gonic/gin"
+)
 
 func SetupRoutes(router *gin.Engine, outsideTripHandler *OutSideTripHandler) {
     v1 := router.Group("/api/v1")
+    v1.Use(auth.AuthMiddleware())
     v1.POST("/outside-trip", outsideTripHandler.CreateOutSideTrip)
     v1.GET("/outside-trip/:id", outsideTripHandler.GetOutSideTrip)
     v1.PUT("/outside-trip/:id", outsideTripHandler.UpdateOutSideTrip)
