@@ -16,13 +16,20 @@ package dailysidecash
   }
 
   func (h *Handler) Create(c *gin.Context) {
+      productIDVal, exists := c.Get("product_id")
+      if !exists {
+          c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+          return
+      }
+      productID := productIDVal.(uint)
+
       var req CreateDailySideCashDTO
       if err := c.ShouldBindJSON(&req); err != nil {
           c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
           return
       }
 
-      rec, err := h.svc.Create(&req)
+      rec, err := h.svc.Create(&req, productID)
       if err != nil {
           c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
           return
@@ -79,6 +86,13 @@ package dailysidecash
   }
 
   func (h *Handler) GetAll(c *gin.Context) {
+      productIDVal, exists := c.Get("product_id")
+      if !exists {
+          c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+          return
+      }
+      productID := productIDVal.(uint)
+
       page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
       pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
       if page < 1 {
@@ -88,7 +102,7 @@ package dailysidecash
           pageSize = 10
       }
 
-      records, total, err := h.svc.GetAll(page, pageSize)
+      records, total, err := h.svc.GetAll(productID, page, pageSize)
       if err != nil {
           c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
           return
@@ -121,13 +135,20 @@ package dailysidecash
   }
 
   func (h *Handler) GetByDate(c *gin.Context) {
+      productIDVal, exists := c.Get("product_id")
+      if !exists {
+          c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+          return
+      }
+      productID := productIDVal.(uint)
+
       date := c.Query("date")
       if date == "" {
           c.JSON(http.StatusBadRequest, gin.H{"error": "date is required (YYYY-MM-DD)"})
           return
       }
 
-      rec, err := h.svc.GetByDate(date)
+      rec, err := h.svc.GetByDate(productID, date)
       if err != nil {
           if err.Error() == "daily side cash not found" {
               c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

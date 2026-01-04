@@ -52,6 +52,7 @@ func main() {
 	helperRepo     :=helper.NewHelperRepo(db)
 	OwnVehicleTripRepo := ownvehicle.NewOwnVehicleTripRepository(db)  
 	dailySideCashRepo := dailysidecash.NewDailySideCashRepo(db)
+	authRepo := auth.NewAuthRepo(db)
     
    
 
@@ -70,6 +71,8 @@ func main() {
 	helperService  := helper.NewHelperService(helperRepo)
 	ownVehicleTripService:= ownvehicle.NewOwnVehicleTripService(OwnVehicleTripRepo)
     dailySideCashService := dailysidecash.NewService(dailySideCashRepo)
+    authService := auth.NewAuthService(authRepo)
+
     
 
 
@@ -86,7 +89,8 @@ func main() {
 	purchaseHandler:=    purchase.NewPurchaseHandler(purchaseService,uploader)
 	helperHandler:= helper.NewHelperHandler(helperService)
 	ownVehicleTripHandler:= ownvehicle.NewOwnVehicleTripHandler(ownVehicleTripService)
-    dailySideCashHandler := dailysidecash.NewHandler(dailySideCashService)    
+    dailySideCashHandler := dailysidecash.NewHandler(dailySideCashService)
+	authHandler := auth.NewAuthHandler(authService)
 
 
 
@@ -108,8 +112,8 @@ func main() {
         log.Printf("Failed to initialize Google OAuth: %v", err)
       } 
 
-	router.GET("/auth/google/login", auth.GoogleLogin)
-    router.GET("/auth/google/callback", auth.GoogleCallback)
+	// router.GET("/auth/google/login", auth.GoogleLogin)
+    // router.GET("/auth/google/callback", auth.GoogleCallback)
 
 	customer.SetupRoutes(router,customerHanlder)
 	dealer.SetupRoutes(router,dealerHandler)
@@ -125,6 +129,7 @@ func main() {
 	helper.SetupRoutes(router,helperHandler)
 	ownvehicle.SetupRoutess(router,ownVehicleTripHandler)
     dailysidecash.SetupRoutes(router, dailySideCashHandler)
+	auth.SetupAuthRoutes(router, authHandler)
 
 	if err := router.Run(":8080"); err != nil {
     log.Fatalf("server failed: %v", err)

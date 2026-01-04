@@ -6,11 +6,19 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	RoleAdmin = "admin"
+	RoleManager = "manager"
+)
+
 type User struct {
 	 ID    uint  `json:"id" gorm:"primaryKey"`
-	 GoogleID string `json:"google_id" gorm:"uniqueIndex;not null"`
 	 Email string `json:"email" gorm:"uniqueIndex;not null"`
 	 Name string `json:"name" gorm:"not null"`
+	 Password string `json:"-" gorm:"not null"`
+	 ProductID uint  `json:"-" gorm:"not null;index"`
+	 Role string `json:"role" gorm:"not null;default:'manager'"`
+	 Status string `json:"status" gorm:"not null;default:'pending'"`
 	 Picture   string    `json:"picture"`
 	 CreatedAt time.Time  `json:"created_at"`
 	 UpdatedAt time.Time `json:"updated_at"`
@@ -24,3 +32,4 @@ type GoogleUserInfo struct {
     Name    string `json:"name"`    // "John Doe"
     Picture string `json:"picture"` // Profile photo URL
 }
+
