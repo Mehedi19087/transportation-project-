@@ -13,7 +13,6 @@ const (
 
 type User struct {
 	 ID    uint  `json:"id" gorm:"primaryKey"`
-	 Email string `json:"email" gorm:"uniqueIndex;not null"`
 	 Name string `json:"name" gorm:"not null"`
 	 Password string `json:"-" gorm:"not null"`
 	 ProductID uint  `json:"-" gorm:"not null;index"`
