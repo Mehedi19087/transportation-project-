@@ -1,6 +1,7 @@
 package dailysidecash
 
   import (
+      "fmt"
       "net/http"
       "strconv"
 
@@ -28,6 +29,8 @@ package dailysidecash
           c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
           return
       }
+      
+      fmt.Printf("DEBUG: Received Date: %q\n", req.Date)
 
       rec, err := h.svc.Create(&req, productID)
       if err != nil {
