@@ -29,9 +29,9 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 	if req.Date == "" {
 		return nil, errors.New("date is required")
 	}
-	d, err := time.Parse("02-01-2006", req.Date)
+	d, err := time.Parse("2006-01-02", req.Date)
 	if err != nil {
-		return nil, fmt.Errorf("invalid date format (expected DD-MM-YYYY): %w", err)
+		return nil, fmt.Errorf("invalid date format (expected YYYY-MM-DD): %w", err)
 	}
 
 	// Calculate previous date
@@ -84,9 +84,9 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 	}
 
 	if req.Date != nil {
-		d, parseErr := time.Parse("02-01-2006", *req.Date)
+		d, parseErr := time.Parse("2006-01-02", *req.Date)
 		if parseErr != nil {
-			return fmt.Errorf("invalid date format (expected DD-MM-YYYY): %w", parseErr)
+			return fmt.Errorf("invalid date format (expected YYYY-MM-DD): %w", parseErr)
 		}
 		existing.Date = d
 	}
@@ -146,9 +146,9 @@ func (s *service) Delete(id uint) error {
 }
 
 func (s *service) GetByDate(productID uint, date string) (*DailySideCash, error) {
-	d, err := time.Parse("02-01-2006", date)
+	d, err := time.Parse("2006-01-02", date)
 	if err != nil {
-		return nil, fmt.Errorf("invalid date format (expected DD-MM-YYYY): %w", err)
+		return nil, fmt.Errorf("invalid date format (expected YYYY-MM-DD): %w", err)
 	}
 	rec, err := s.repo.GetByDate(productID, d)
 	if err != nil {
