@@ -144,7 +144,7 @@ package dailysidecash
 
       date := c.Query("date")
       if date == "" {
-          c.JSON(http.StatusBadRequest, gin.H{"error": "date is required (YYYY-MM-DD)"})
+          c.JSON(http.StatusBadRequest, gin.H{"error": "date is required (DD-MM-YYYY)"})
           return
       }
 

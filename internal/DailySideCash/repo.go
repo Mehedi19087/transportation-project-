@@ -67,12 +67,11 @@ func(r *dailySideCashRepo) Delete(id uint) error {
 func (r *dailySideCashRepo) GetByDate(productID uint, date time.Time) (*DailySideCash, error) {
    var dailySideCash DailySideCash
 
-   // Use strictly the date part for comparison to avoid time issues if needed, 
-   // but assuming the input 'date' is already truncated or the DB type handles it.
-   // Using formatted string to be safe with DATE types in Postgres.
+   // Format the date as a string YYYY-MM-DD to match against the date column
+   // We cast the DB column to DATE to ignore the time component if it exists
    dateStr := date.Format("2006-01-02")
 
-   err := r.db.Where("product_id = ? AND date = ?", productID, dateStr).First(&dailySideCash).Error 
+   err := r.db.Where("product_id = ? AND DATE(date) = ?", productID, dateStr).First(&dailySideCash).Error 
 
    if err != nil {
           if errors.Is(err, gorm.ErrRecordNotFound) {

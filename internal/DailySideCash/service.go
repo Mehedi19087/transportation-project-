@@ -29,9 +29,9 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 	if req.Date == "" {
 		return nil, errors.New("date is required")
 	}
-	d, err := time.Parse("2006-01-02", req.Date)
+	d, err := time.Parse("02-01-2006", req.Date)
 	if err != nil {
-		return nil, fmt.Errorf("invalid date format (expected YYYY-MM-DD): %w", err)
+		return nil, fmt.Errorf("invalid date format (expected DD-MM-YYYY): %w", err)
 	}
 
 	// Calculate previous date
@@ -41,11 +41,15 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 	// Fetch previous day's record
 	var carryOver float64 = 0
 	prevRecord, err := s.repo.GetByDate(productID, prevDate)
-	if err == nil && prevRecord != nil {
-		carryOver = prevRecord.RemainingBalance
-	} else {
-		// If previous day does not work (not found), remaining balance (carry over) will be zero
+	if err != nil {
+		// If it's a real DB error (not just "not found"), return it so we can see what's wrong
+		if !errors.Is(err, gorm.ErrRecordNotFound) && err.Error() != "daily side cash record not found for the given date and product" {
+			return nil, fmt.Errorf("failed to fetch previous day record: %w", err)
+		}
+		// If it is just not found, we start with 0 (normal for first day)
 		carryOver = 0
+	} else if prevRecord != nil {
+		carryOver = prevRecord.RemainingBalance
 	}
 
 	// Total Cash = Carry Over from yesterday + Any new Cash added today (req.Cash)
@@ -80,9 +84,9 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 	}
 
 	if req.Date != nil {
-		d, parseErr := time.Parse("2006-01-02", *req.Date)
+		d, parseErr := time.Parse("02-01-2006", *req.Date)
 		if parseErr != nil {
-			return fmt.Errorf("invalid date format (expected YYYY-MM-DD): %w", parseErr)
+			return fmt.Errorf("invalid date format (expected DD-MM-YYYY): %w", parseErr)
 		}
 		existing.Date = d
 	}
@@ -142,9 +146,9 @@ func (s *service) Delete(id uint) error {
 }
 
 func (s *service) GetByDate(productID uint, date string) (*DailySideCash, error) {
-	d, err := time.Parse("2006-01-02", date)
+	d, err := time.Parse("02-01-2006", date)
 	if err != nil {
-		return nil, fmt.Errorf("invalid date format (expected YYYY-MM-DD): %w", err)
+		return nil, fmt.Errorf("invalid date format (expected DD-MM-YYYY): %w", err)
 	}
 	rec, err := s.repo.GetByDate(productID, d)
 	if err != nil {
