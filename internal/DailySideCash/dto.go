@@ -9,6 +9,7 @@ type CreateDailySideCashDTO struct {
 	TripCost         float64 `json:"trip_cost"`
 	OtherCost        float64 `json:"other_cost"`
 	OtherCostDetails string  `json:"other_cost_details"`
+	ProductID        uint    `json:"product_id"`
 }
 
 // UpdateDailySideCashDTO is the request body for partial updates.

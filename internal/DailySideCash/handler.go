@@ -3,6 +3,7 @@ package dailysidecash
   import (
       "net/http"
       "strconv"
+      "transportation/internal/auth"
 
       "github.com/gin-gonic/gin"
   )
@@ -16,17 +17,33 @@ package dailysidecash
   }
 
   func (h *Handler) Create(c *gin.Context) {
-      productIDVal, exists := c.Get("product_id")
+      roleVal, exists := c.Get("role")
       if !exists {
           c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
           return
       }
-      productID := productIDVal.(uint)
+      role := roleVal.(string)
 
       var req CreateDailySideCashDTO
       if err := c.ShouldBindJSON(&req); err != nil {
           c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
           return
+      }
+
+      var productID uint
+      if role == auth.RoleAdmin {
+          if req.ProductID == 0 {
+               c.JSON(http.StatusBadRequest, gin.H{"error": "product_id is required for admin"})
+               return
+          }
+          productID = req.ProductID
+      } else {
+          productIDVal, exists := c.Get("product_id")
+          if !exists {
+              c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+              return
+          }
+          productID = productIDVal.(uint)
       }
 
       rec, err := h.svc.Create(&req, productID)
@@ -86,12 +103,29 @@ package dailysidecash
   }
 
   func (h *Handler) GetAll(c *gin.Context) {
-      productIDVal, exists := c.Get("product_id")
+      roleVal, exists := c.Get("role")
       if !exists {
           c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
           return
       }
-      productID := productIDVal.(uint)
+      role := roleVal.(string)
+
+      var productID uint
+      if role == auth.RoleAdmin {
+          if pIDStr := c.Query("product_id"); pIDStr != "" {
+              id, _ := strconv.Atoi(pIDStr)
+              productID = uint(id)
+          } else {
+              productID = 0
+          }
+      } else {
+          productIDVal, exists := c.Get("product_id")
+          if !exists {
+              c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+              return
+          }
+          productID = productIDVal.(uint)
+      }
 
       page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
       pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
@@ -135,12 +169,30 @@ package dailysidecash
   }
 
   func (h *Handler) GetByDate(c *gin.Context) {
-      productIDVal, exists := c.Get("product_id")
+      roleVal, exists := c.Get("role")
       if !exists {
           c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
           return
       }
-      productID := productIDVal.(uint)
+      role := roleVal.(string)
+
+      var productID uint
+      if role == auth.RoleAdmin {
+          if pIDStr := c.Query("product_id"); pIDStr != "" {
+              id, _ := strconv.Atoi(pIDStr)
+              productID = uint(id)
+          } else {
+              c.JSON(http.StatusBadRequest, gin.H{"error": "product_id is required for admin in GetByDate"})
+              return
+          }
+      } else {
+          productIDVal, exists := c.Get("product_id")
+          if !exists {
+              c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+              return
+          }
+          productID = productIDVal.(uint)
+      }
 
       date := c.Query("date")
       if date == "" {

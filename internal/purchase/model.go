@@ -16,7 +16,7 @@ type Purchase struct {
     Category      *string         `json:"category"`
     TotalAmount   *float64        `json:"total_amount"`
     VehicleNo     *string         `json:"vehicle_no"`
-    Notes         *string        `json:"notes"`
+    Notes         *string         `json:"notes"`
     PaymentStatus *string         `json:"payment_status"` // e.g., Paid, Pending, Overdue
     BillImage     *string        `json:"bill_image"` // URL or base64
     CreatedAt     time.Time      `json:"created_at"`

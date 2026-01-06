@@ -44,7 +44,10 @@ func(r *dailySideCashRepo) GetAll(productID uint, offset, limit int) ([]DailySid
 	var dailySideCash []DailySideCash 
 	var total int64 
 
-	query := r.db.Model(&DailySideCash{}).Where("product_id = ?", productID)
+	query := r.db.Model(&DailySideCash{})
+	if productID != 0 {
+		query = query.Where("product_id = ?", productID)
+	}
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err 
