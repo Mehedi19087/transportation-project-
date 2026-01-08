@@ -24,6 +24,8 @@ type ProductRepo interface {
 
 	 UpdateProductBillFields(productID uint, billFields pq.StringArray) error
      GetProductBillFields(productID uint) (pq.StringArray, error) 
+
+	 GetSummaries() ([]ProductSummary, error)
 }
 
 type productRepo struct {
@@ -139,4 +141,15 @@ func(r *productRepo) GetProductBillFields(productID uint) (pq.StringArray, error
           return nil , err 
      }
      return product.BillFields, nil 
+}
+
+func (r *productRepo) GetSummaries() ([]ProductSummary, error) {
+	 var summaries []ProductSummary 
+
+	 err := r.db.Model(&Product{}).Select("id,name").Order("name ASC").Scan(&summaries).Error
+
+	 if err != nil {
+		 return nil, err 
+	 }
+	 return summaries, nil
 }

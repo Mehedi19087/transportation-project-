@@ -483,3 +483,15 @@ func (h *ProductHandler) GetProductBillFields(ctx *gin.Context) {
         "data": billFields,
     })
 }
+
+func (h *ProductHandler) GetProductSummaries(ctx *gin.Context) {
+       res, err := h.service.GetProductSummaries()
+       if err != nil {
+           ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch product summaries"})
+           return
+       }
+
+       ctx.JSON(http.StatusOK, gin.H{
+           "data": res,
+       })
+}

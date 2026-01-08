@@ -45,6 +45,7 @@ func (s *outSideTripService) CreateOutSideTrip(req *OutSideTripReq) error {
         VehicleNumber: req.VehicleNumber,
         DriverName:    req.DriverName,
         DriverPhone:   req.DriverPhone,
+        Due:           req.Due,
         CreatedAt:     time.Now(),
         UpdatedAt:     time.Now(),
     }
@@ -72,21 +73,58 @@ func (s *outSideTripService) UpdateOutSideTrip(id uint, req *OutSideTripUpdateRe
         }
         return err
     }
-    res.LoadPoint = req.LoadPoint
-    res.UnloadPoint = req.UnloadPoint
-    res.Rent = req.Rent
-    res.Advance = req.Advance
-    res.TripCost = req.TripCost
-    res.Diesel = req.Diesel
-    res.ExtraCost = req.ExtraCost
-    res.DieselTaka = req.DieselTaka
-    res.Pamp = req.Pamp
-    res.Commission = req.Commission
-    res.Month = req.Month
-    res.VehicleName = req.VehicleName
-    res.VehicleNumber = req.VehicleNumber
-    res.DriverName = req.DriverName
-    res.DriverPhone = req.DriverPhone
+    if req.LoadPoint != nil {
+        res.LoadPoint = *req.LoadPoint
+    }
+    if req.UnloadPoint != nil {
+        res.UnloadPoint = *req.UnloadPoint
+    }
+    if req.Rent != nil {
+        res.Rent = *req.Rent
+    }
+    if req.Advance != nil {
+        res.Advance = *req.Advance
+    }
+    if req.TripCost != nil {
+        res.TripCost = *req.TripCost
+    }
+    if req.Diesel != nil {
+        res.Diesel = *req.Diesel
+    }
+    if req.ExtraCost != nil {
+        res.ExtraCost = *req.ExtraCost
+    }
+    if req.DieselTaka != nil {
+        res.DieselTaka = *req.DieselTaka
+    }
+    if req.Pamp != nil {
+        res.Pamp = *req.Pamp
+    }
+    if req.Commission != nil {
+        res.Commission = *req.Commission
+    }
+    if req.Month != nil {
+        res.Month = *req.Month
+    }
+    if req.VehicleName != nil {
+        res.VehicleName = *req.VehicleName
+    }
+    if req.VehicleNumber != nil {
+        res.VehicleNumber = *req.VehicleNumber
+    }
+    if req.DriverName != nil {
+        res.DriverName = *req.DriverName
+    }
+    if req.DriverPhone != nil {
+        res.DriverPhone = *req.DriverPhone
+    }
+    if req.Due != nil {
+        res.Due = *req.Due
+    }
+    if req.DueStatus != nil {
+        res.DueStatus = *req.DueStatus
+    }
+    
     res.UpdatedAt = time.Now()
 
     if err := s.repo.Update(res); err != nil {

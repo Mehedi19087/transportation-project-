@@ -25,6 +25,8 @@ type OutSideTrip struct {
 	 DriverName string `json:"driver_name"`
 	 DriverPhone string `json:"driver_phone"`
 	 ProductID  uint `json:"product_id" gorm:"not null;index"`
+	 Due        float64 `json:"due"`
+	 DueStatus  string  `json:"due_status" gorm:"default:unpaid"`
 	 CreatedAt time.Time `json:"created_at"`
 	 UpdatedAt time.Time `json:"updated_at"`
 	 DeletedAt gorm.DeletedAt `json:"_" gorm:"index"`

@@ -29,6 +29,7 @@ type ProductService interface {
 
     UpdateProductBillFields(productID uint, req *UpdateProductBillFieldsReq) error  // Add this line
     GetProductBillFields(productID uint) ([]string, error)
+    GetProductSummaries() ([]ProductSummary, error)
 }
 
 type productService struct {
@@ -482,4 +483,8 @@ func(s *productService) GetProductBillFields(productID uint) ([]string, error) {
 
     // Convert pq.StringArray back to []string
     return []string(billFields), nil
+}
+
+func (s *productService) GetProductSummaries() ([]ProductSummary, error) {
+       return s.repo.GetSummaries()
 }

@@ -94,3 +94,9 @@ type UpdateBillReq struct {
     DoNumber              *string  `json:"do_number"`
     CoNumber              *string  `json:"co_number"`
 }
+
+
+type ProductSummary struct {
+       ID   uint   `json:"id"`
+       Name string `json:"name"`
+}

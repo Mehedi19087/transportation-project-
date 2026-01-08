@@ -16,24 +16,27 @@ type OutSideTripReq struct {
     VehicleNumber string  `json:"vehicle_number"`
     DriverName    string  `json:"driver_name"`
     DriverPhone   string  `json:"driver_phone"`
+    Due           float64 `json:"due"`
 }
 
 type OutSideTripUpdateReq struct {
-    LoadPoint     string  `json:"load_point"`
-    UnloadPoint   string  `json:"unload_point"`
-    Rent          float64 `json:"rent"`
-    Advance       float64 `json:"advance"`
-    TripCost      float64 `json:"trip_cost"`
-    Diesel        float64 `json:"diesel"`
-    ExtraCost     float64 `json:"extra_cost"`
-    DieselTaka    float64 `json:"diesel_taka"`
-    Pamp          string  `json:"pamp"`
-    Commission    float64 `json:"commission"`
-    Month         string  `json:"month"`
-    VehicleName   string  `json:"vehicle_name"`
-    VehicleNumber string  `json:"vehicle_number"`
-    DriverName    string  `json:"driver_name"`
-    DriverPhone   string  `json:"driver_phone"`
+    LoadPoint     *string  `json:"load_point"`
+    UnloadPoint   *string  `json:"unload_point"`
+    Rent          *float64 `json:"rent"`
+    Advance       *float64 `json:"advance"`
+    TripCost      *float64 `json:"trip_cost"`
+    Diesel        *float64 `json:"diesel"`
+    ExtraCost     *float64 `json:"extra_cost"`
+    DieselTaka    *float64 `json:"diesel_taka"`
+    Pamp          *string  `json:"pamp"`
+    Commission    *float64 `json:"commission"`
+    Month         *string  `json:"month"`
+    VehicleName   *string  `json:"vehicle_name"`
+    VehicleNumber *string  `json:"vehicle_number"`
+    DriverName    *string  `json:"driver_name"`
+    DriverPhone   *string  `json:"driver_phone"`
+    Due           *float64 `json:"due"`
+    DueStatus     *string  `json:"due_status"`
 }
 
 type VehicleMonthlySummary struct {

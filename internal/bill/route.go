@@ -9,6 +9,7 @@ import (
 func SetupRoutes(router *gin.Engine, productHandler *ProductHandler) {
      v1:= router.Group("/api/v1")
      v1.Use(auth.AuthMiddleware())
+     v1.GET("/products-summary", productHandler.GetProductSummaries)
      v1.POST("/products",productHandler.CreateProduct)
      v1.GET("/products/:id",productHandler.GetProduct)
      v1.PUT("/products/:id",productHandler.UpdateProduct)
