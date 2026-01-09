@@ -9,7 +9,7 @@ import (
 
 type AuthService interface {
 	 CreateUser(req *AuthReq) error
-	 Login(req *AuthReq) (string, error)
+	 Login(req *AuthReq) (string, string, error)
 	 UpdateUser(id uint, req UpdateReq, requesterRole string) error
 	 GetPendingUsers() ([]User, error)
 }
@@ -53,21 +53,22 @@ func(s *authService) CreateUser(req *AuthReq) error {
 	 return nil 
 }
 
-func (s *authService) Login(req *AuthReq) (string, error) {
+func (s *authService) Login(req *AuthReq) (string, string, error) {
 	  if req.Name == "" || req.Password == "" {
-           return "", errors.New("username and password are required")
+           return "", "", errors.New("username and password are required")
       }
 	  user, err := s.repo.GetUserByName(req.Name)
        if err != nil {
-           return "", errors.New("invalid username or password")
+           return "", "", errors.New("invalid username or password")
       }
 	  if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-           return "", errors.New("invalid username or password")
+           return "", "", errors.New("invalid username or password")
       }
 	  if user.Status != "active" {
-           return "", errors.New("account is pending approval")
+           return "", "", errors.New("account is pending approval")
       }
-	  return utils.GenerateJWT(user.ID, user.Name, user.Role, &user.ProductID)
+	  token, err := utils.GenerateJWT(user.ID, user.Name, user.Role, &user.ProductID)
+	  return token, user.Role, err
 }
 
 func (s *authService) UpdateUser(id uint, req UpdateReq, requesterRole string) error {

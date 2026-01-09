@@ -12,7 +12,8 @@ type RoutePricingService interface {
     UpdateRoutePricing(id uint, req *RoutePricingUpdateReq) error
     DeleteRoutePricing(id uint) error
     GetAllRoutePricing(page, pageSize int) ([]RoutePricing, int64, error)
-    GetRateByLocations(loadPoint, unloadPoint string) (int, error)
+    GetRate(dealerName, destination string) (float64, error)
+    GetDealerNames() ([]string, error)
 }
 
 type routePricingService struct {
@@ -24,26 +25,17 @@ func NewRoutePricingService(repo RoutePricingRepo) RoutePricingService {
 }
 
 func (s *routePricingService) CreateRoutePricing(req *RoutePricingReq) error {
-    if req.CustomerName == "" {
-        return errors.New("customer name is required")
+    if req.DealerName == "" {
+        return errors.New("dealer name is required")
     }
-    if req.LoadPoint == "" {
-        return errors.New("load point is required")
-    }
-    if req.UnloadPoint == "" {
-        return errors.New("unload point is required")
+    if req.Destination == "" {
+        return errors.New("destination is required")
     }
 
     routePricing := &RoutePricing{
-        CustomerName: req.CustomerName,
-        Size:         req.Size,
-        LoadPoint:    req.LoadPoint,
-        UnloadPoint:  req.UnloadPoint,
-        Rate:         req.Rate,
-        Weight:       req.Weight,
-        Notes:        req.Notes,
-        Status:       req.Status,
-        VehicleCategory: req.VehicleCategory,
+        DealerName:  req.DealerName,
+        Destination: req.Destination,
+        Rate:        req.Rate,
     }
 
     if err := s.repo.Create(routePricing); err != nil {
@@ -70,15 +62,15 @@ func (s *routePricingService) UpdateRoutePricing(id uint, req *RoutePricingUpdat
         return err
     }
 
-    res.CustomerName = req.CustomerName
-    res.Size = req.Size
-    res.LoadPoint = req.LoadPoint
-    res.UnloadPoint = req.UnloadPoint
-    res.Rate = req.Rate
-    res.Weight = req.Weight
-    res.Notes = req.Notes
-    res.Status = req.Status
-    res.VehicleCategory= req.VehicleCategory
+    if req.DealerName != "" {
+        res.DealerName = req.DealerName
+    }
+    if req.Destination != "" {
+        res.Destination = req.Destination
+    }
+    if req.Rate != 0 {
+        res.Rate = req.Rate
+    }
 
     if err := s.repo.Update(res); err != nil {
         return err
@@ -111,10 +103,14 @@ func (s *routePricingService) GetAllRoutePricing(page, pageSize int) ([]RoutePri
     return routePricings, total, nil
 }
 
-func (s *routePricingService) GetRateByLocations(loadPoint, unloadPoint string) (int, error) {
-    rate, err := s.repo.GetRateByLocations(loadPoint, unloadPoint)
+func (s *routePricingService) GetRate(dealerName, destination string) (float64, error) {
+    rate, err := s.repo.GetRate(dealerName, destination)
     if err != nil {
-        return 0, errors.New("rate not found for the given locations")
+        return 0, errors.New("rate not found for the given dealer and destination")
     }
     return rate, nil
+}
+
+func (s *routePricingService) GetDealerNames() ([]string, error) {
+    return s.repo.GetDealerNames()
 }

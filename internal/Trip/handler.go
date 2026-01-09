@@ -21,6 +21,19 @@ func (h *Handler) CreateTrip(ctx *gin.Context) {
         ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
+
+    authProductID, _:= ctx.Get("product_id")
+    role, _ := ctx.Get("role")
+
+    if role == "manager" {
+         pid, ok := authProductID.(uint)
+         if ok {
+            req.ProductID = pid 
+         } else {
+               ctx.JSON(http.StatusInternalServerError, gin.H{"error": "product identification failed"})
+               return
+           }
+    }
     if err := h.service.CreateTrip(&req); err != nil {
         ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -94,6 +107,19 @@ func (h *Handler) GetProductTrips(ctx *gin.Context) {
     if err != nil || pid == 0 {
         ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid product id"})
         return
+    }
+
+    authProductID, _:= ctx.Get("product_id")
+    role, _ := ctx.Get("role")
+
+    if role == "manager" {
+         pidd, ok := authProductID.(uint64)
+         if ok {
+            pid=pidd  
+         } else {
+               ctx.JSON(http.StatusInternalServerError, gin.H{"error": "product identification failed"})
+               return
+           }
     }
     pageStr := ctx.DefaultQuery("page", "1")
     sizeStr := ctx.DefaultQuery("page_size", "10")

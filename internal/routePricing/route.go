@@ -16,5 +16,6 @@ func SetupRoutes(router *gin.Engine, routePricingHandler *RoutePricingHandler) {
         v1.DELETE("/route-pricing/:id", routePricingHandler.DeleteRoutePricing)
         v1.GET("/route-pricing", routePricingHandler.GetAllRoutePricing)
         v1.GET("/rates",routePricingHandler.GetRate)
+        v1.GET("/dealer",routePricingHandler.GetDealerNames)
     }
 }

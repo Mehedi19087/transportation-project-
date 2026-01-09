@@ -152,18 +152,30 @@ func (h *RoutePricingHandler) GetAllRoutePricing(ctx *gin.Context) {
     })
 }
 
-func (h *RoutePricingHandler) GetRate(c *gin.Context) {
+func (h *RoutePricingHandler) GetRate(ctx *gin.Context) {
     var req RateRequest
-    if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+    if err := ctx.ShouldBindJSON(&req); err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
         return
     }
 
-    rate, err := h.service.GetRateByLocations(req.LoadPoint, req.UnloadPoint)
+    rate, err := h.service.GetRate(req.DealerName, req.Destination)
     if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+        ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"rate": rate})
+    ctx.JSON(http.StatusOK, gin.H{"rate": rate})
+}
+
+func (h *RoutePricingHandler) GetDealerNames(ctx *gin.Context) {
+    dealerNames, err := h.service.GetDealerNames()
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    ctx.JSON(http.StatusOK, gin.H{
+        "data": dealerNames,
+    })
 }

@@ -171,6 +171,8 @@ func (h *ProductHandler) GetCompanyProducts(ctx *gin.Context) {
 
 // ...existing code...
 
+//Bill code 
+
 func (h *ProductHandler) CreateBill(ctx *gin.Context) {
     var req CreateBillReq
     if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -179,9 +181,18 @@ func (h *ProductHandler) CreateBill(ctx *gin.Context) {
         })
         return
     }
-    // if b, err := json.MarshalIndent(req, "", "  "); err == nil {
-    //     log.Println("CreateBill payload:\n" + string(b))
-    // }
+    authProductID, _:= ctx.Get("product_id")
+    role, _ := ctx.Get("role")
+
+    if role == "manager" {
+         pid, ok := authProductID.(uint)
+         if ok {
+            req.ProductID = pid 
+         } else {
+               ctx.JSON(http.StatusInternalServerError, gin.H{"error": "product identification failed"})
+               return
+           }
+    }
 
     err := h.service.CreateBill(&req)
     if err != nil {
@@ -237,6 +248,19 @@ func (h *ProductHandler) GetProductBills(ctx *gin.Context) {
             "error": "invalid product id",
         })
         return
+    }
+
+    authProductID, _:= ctx.Get("product_id")
+    role, _ := ctx.Get("role")
+
+    if role == "manager" {
+         pidd, ok := authProductID.(uint64)
+         if ok {
+            productID=pidd  
+         } else {
+               ctx.JSON(http.StatusInternalServerError, gin.H{"error": "product identification failed"})
+               return
+           }
     }
 
     pageStr := ctx.DefaultQuery("page", "1")

@@ -272,7 +272,7 @@ func (s *service) calculateFields(item *Trip) error {
 	// Fetch route rate (if available) for VAT/profit calculation
 	routeRate := 0.0
 	if item.LoadPoint != nil && item.UnloadPoint != nil && *item.LoadPoint != "" && *item.UnloadPoint != "" {
-		rate, err := s.routePricingService.GetRateByLocations(*item.LoadPoint, *item.UnloadPoint)
+		rate, err := s.routePricingService.GetRate(*item.Dealer, *item.UnloadPoint)
 		if err == nil {
 			routeRate = float64(rate)
 			vat := routeRate * 0.20
@@ -301,7 +301,7 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
 	if req.ProductID == 0 {
 		return errors.New("product_id is required")
 	}
-	rate, err := s.routePricingService.GetRateByLocations(*req.LoadPoint, *req.UnloadPoint)
+	rate, err := s.routePricingService.GetRate(req.Dealer, req.UnloadPoint)
 	if err != nil {
 	   return errors.New("route pricing is missing")
 	}
@@ -310,45 +310,45 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
 	vat:=unitPrice*0.2
 	item := &Trip{
 		ProductID:     req.ProductID,
-		BrandName:     req.BrandName,
-		Category:      req.Category,
-		Date:          req.Date,
-		TripType:      req.TripType,
-		TripNo:        req.TripNo,
-		InvoiceNo:     req.InvoiceNo,
-		VehicleName:   req.VehicleName,
-		VehicleNo:     req.VehicleNo,
-		EngineNo:      req.EngineNo,
-		ChassisNo:     req.ChassisNo,
-		DriverName:    req.DriverName,
-		DriverMobile:  req.DriverMobile,
-		HelperName:    req.HelperName,
-		LoadPoint:     req.LoadPoint,
-		UnloadPoint:   req.UnloadPoint,
-		Destination:   req.Destination,
-		Route:         req.Route,
-		District:      req.District,
-		Quantity:      req.Quantity,
+		BrandName:     &req.BrandName,
+		Category:      &req.Category,
+		Date:          &req.Date,
+		TripType:      &req.TripType,
+		TripNo:        &req.TripNo,
+		InvoiceNo:     &req.InvoiceNo,
+		VehicleName:   &req.VehicleName,
+		VehicleNo:     &req.VehicleNo,
+		EngineNo:      &req.EngineNo,
+		ChassisNo:     &req.ChassisNo,
+		DriverName:    &req.DriverName,
+		DriverMobile:  &req.DriverMobile,
+		HelperName:    &req.HelperName,
+		LoadPoint:     &req.LoadPoint,
+		UnloadPoint:   &req.UnloadPoint,
+		Destination:   &req.Destination,
+		Route:         &req.Route,
+		District:      &req.District,
+		Quantity:      &req.Quantity,
 		UnitPrice:     &unitPrice,
-		Cash:          req.Cash,
-		Advance:       req.Advance,
-		Due:           req.Due,
-		BillNo:        req.BillNo,
-		BillDate:      req.BillDate,
-		PaymentType:   req.PaymentType,
-		TruckSize:     req.TruckSize,
-		Weight:        req.Weight,
-		FuelType:      req.FuelType,
-		FuelCost:      req.FuelCost,
-		TransportType: req.TransportType,
-		Remarks:       req.Remarks,
-		Status:        req.Status,
-		CreatedBy:     req.CreatedBy,
-		ApprovedBy:    req.ApprovedBy,
-		Dealer: req.Dealer,
-		Rent: req.Rent,
-		Alt5: req.Alt5,
-		Vat10: &vat,
+		Cash:          &req.Cash,
+		Advance:       &req.Advance,
+		Due:           &req.Due,
+		BillNo:        &req.BillNo,
+		BillDate:      &req.BillDate,
+		PaymentType:   &req.PaymentType,
+		TruckSize:     &req.TruckSize,
+		Weight:        &req.Weight,
+		FuelType:      &req.FuelType,
+		FuelCost:      &req.FuelCost,
+		TransportType: &req.TransportType,
+		Remarks:       &req.Remarks,
+		Status:        &req.Status,
+		CreatedBy:     &req.CreatedBy,
+		ApprovedBy:    &req.ApprovedBy,
+		Dealer:        &req.Dealer,
+		Rent:          &req.Rent,
+		Alt5:          &req.Alt5,
+		Vat10:         &vat,
 		CreatedAt:     time.Now().UTC(),
 		UpdatedAt:     time.Now().UTC(),
 	}
