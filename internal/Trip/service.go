@@ -229,6 +229,7 @@ package trip
 
 import (
 	"errors"
+	"fmt"
 	"time"
 	"log"
 
@@ -302,10 +303,11 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
 	if req.ProductID == 0 {
 		return errors.New("product_id is required")
 	}
+	log.Printf("DEBUG: CreateTrip - Dealer: '%s', UnloadPoint: '%s'", req.Dealer, req.UnloadPoint)
 	rate, err := s.routePricingService.GetRate(req.Dealer, req.UnloadPoint)
-	log.Println(req.Dealer, req.UnloadPoint)
 	if err != nil {
-	   return errors.New("route pricing is missing")
+	   log.Printf("ERROR: GetRate failed for Dealer: '%s', UnloadPoint: '%s': %v", req.Dealer, req.UnloadPoint, err)
+	   return fmt.Errorf("route pricing is missing for dealer '%s' and destination '%s'", req.Dealer, req.UnloadPoint)
 	}
 
 	unitPrice := float64(rate)
