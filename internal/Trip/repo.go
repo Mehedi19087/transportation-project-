@@ -10,6 +10,11 @@ type Repository interface {
     GetByProduct(productID uint, offset, limit int) ([]Trip, int64, error)
     Update(t *Trip) error
     Delete(id uint) error
+
+
+    CreateWithTx(tx *gorm.DB, t *Trip) error
+    UpdateWithTx(tx *gorm.DB, t *Trip) error
+    GetDB() *gorm.DB
 }
 
 type repo struct {
@@ -53,4 +58,18 @@ func (r *repo) Update(t *Trip) error {
 
 func (r *repo) Delete(id uint) error {
     return r.db.Delete(&Trip{}, id).Error
+}
+
+
+
+func (r *repo) CreateWithTx(tx *gorm.DB, t *Trip) error {
+    return tx.Create(t).Error
+}
+
+func (r *repo) UpdateWithTx(tx *gorm.DB, t *Trip) error {
+    return tx.Save(t).Error
+}
+
+func (r *repo) GetDB() *gorm.DB {
+    return r.db
 }

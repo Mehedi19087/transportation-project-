@@ -38,145 +38,152 @@ func (h *Handler) GetByDriverAndDate(ctx *gin.Context) {
     })
 }
 
+// ========== OwnVehicleTrip Handler ==========
 
 type OwnVehicleTripHandler struct {
-     service OwnVehicleTripService
+    service OwnVehicleTripService
 }
 
 func NewOwnVehicleTripHandler(service OwnVehicleTripService) *OwnVehicleTripHandler {
-     return &OwnVehicleTripHandler{service: service}
+    return &OwnVehicleTripHandler{service: service}
 }
 
+// POST /api/v1/own-vehicle-trips
 func (h *OwnVehicleTripHandler) CreateOwnVehicleTrip(ctx *gin.Context) {
-     var req CreateOwnVehicleTripDTO 
+    var req CreateOwnVehicleTripDTO
 
-     if err := ctx.ShouldBindJSON(&req); err != nil {
-          ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-          return
-     }
+    if err := ctx.ShouldBindJSON(&req); err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-     if err := h.service.Create(&req); err != nil {
-         ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-         return
-     }
-     
-     ctx.JSON(http.StatusCreated, gin.H{"message": "own vehicle trip created successfully"})
+    if err := h.service.Create(&req); err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    ctx.JSON(http.StatusCreated, gin.H{"message": "own vehicle trip created successfully"})
 }
 
+// GET /api/v1/own-vehicle-trips/:id
 func (h *OwnVehicleTripHandler) GetOwnVehicleTrip(ctx *gin.Context) {
-     idParam := ctx.Param("id")
-     id, err := strconv.ParseUint(idParam, 10, 32)
-     if err != nil || id == 0 {
-          ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-          return
-     }
-     
-     trip, err := h.service.Get(uint(id))
-     if err != nil {
-          if err.Error() == "own vehicle trip not found" {
-               ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-               return
-          }
-          ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-          return
-     }
-     
-     ctx.JSON(http.StatusOK, gin.H{"data": trip})
+    idParam := ctx.Param("id")
+    id, err := strconv.ParseUint(idParam, 10, 32)
+    if err != nil || id == 0 {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+        return
+    }
+
+    trip, err := h.service.Get(uint(id))
+    if err != nil {
+        if err.Error() == "own vehicle trip not found" {
+            ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+            return
+        }
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    ctx.JSON(http.StatusOK, gin.H{"data": trip})
 }
 
+// GET /api/v1/own-vehicle-trips?page=1&page_size=10
 func (h *OwnVehicleTripHandler) GetAllOwnVehicleTrips(ctx *gin.Context) {
-     pageStr := ctx.DefaultQuery("page", "1")
-     sizeStr := ctx.DefaultQuery("page_size", "10")
-     
-     page, _ := strconv.Atoi(pageStr)
-     pageSize, _ := strconv.Atoi(sizeStr)
-     
-     trips, total, err := h.service.GetAll(page, pageSize)
-     if err != nil {
-          ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-          return
-     }
-     
-     ctx.JSON(http.StatusOK, gin.H{
-          "data": trips,
-          "meta": gin.H{
-               "page":       page,
-               "page_size":  pageSize,
-               "total":      total,
-               "total_pages": (total + int64(pageSize) - 1) / int64(pageSize),
-          },
-     })
+    pageStr := ctx.DefaultQuery("page", "1")
+    sizeStr := ctx.DefaultQuery("page_size", "10")
+
+    page, _ := strconv.Atoi(pageStr)
+    pageSize, _ := strconv.Atoi(sizeStr)
+
+    trips, total, err := h.service.GetAll(page, pageSize)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    ctx.JSON(http.StatusOK, gin.H{
+        "data": trips,
+        "meta": gin.H{
+            "page":        page,
+            "page_size":   pageSize,
+            "total":       total,
+            "total_pages": (total + int64(pageSize) - 1) / int64(pageSize),
+        },
+    })
 }
 
+// PUT /api/v1/own-vehicle-trips/:id
 func (h *OwnVehicleTripHandler) UpdateOwnVehicleTrip(ctx *gin.Context) {
-     idParam := ctx.Param("id")
-     id, err := strconv.ParseUint(idParam, 10, 32)
-     if err != nil || id == 0 {
-          ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-          return
-     }
-     
-     var req UpdateOwnVehicleTripDTO
-     if err := ctx.ShouldBindJSON(&req); err != nil {
-          ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-          return
-     }
-     
-     if err := h.service.Update(uint(id), &req); err != nil {
-          if err.Error() == "own vehicle trip not found" {
-               ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-               return
-          }
-          ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-          return
-     }
-     
-     ctx.JSON(http.StatusOK, gin.H{"message": "successfully updated"})
+    idParam := ctx.Param("id")
+    id, err := strconv.ParseUint(idParam, 10, 32)
+    if err != nil || id == 0 {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+        return
+    }
+
+    var req UpdateOwnVehicleTripDTO
+    if err := ctx.ShouldBindJSON(&req); err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    if err := h.service.Update(uint(id), &req); err != nil {
+        if err.Error() == "own vehicle trip not found" {
+            ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+            return
+        }
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    ctx.JSON(http.StatusOK, gin.H{"message": "successfully updated"})
 }
 
+// DELETE /api/v1/own-vehicle-trips/:id
 func (h *OwnVehicleTripHandler) DeleteOwnVehicleTrip(ctx *gin.Context) {
-     idParam := ctx.Param("id")
-     id, err := strconv.ParseUint(idParam, 10, 32)
-     if err != nil || id == 0 {
-          ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-          return
-     }
-     
-     if err := h.service.Delete(uint(id)); err != nil {
-          if err.Error() == "own vehicle trip not found" {
-               ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-               return
-          }
-          ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-          return
-     }
-     
-     ctx.JSON(http.StatusOK, gin.H{"message": "successfully deleted"})
+    idParam := ctx.Param("id")
+    id, err := strconv.ParseUint(idParam, 10, 32)
+    if err != nil || id == 0 {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+        return
+    }
+
+    if err := h.service.Delete(uint(id)); err != nil {
+        if err.Error() == "own vehicle trip not found" {
+            ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+            return
+        }
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    ctx.JSON(http.StatusOK, gin.H{"message": "successfully deleted"})
 }
 
+// GET /api/v1/own-vehicle-trips/by-vehicle?vehicle_no=...&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
+func (h *OwnVehicleTripHandler) GetOwnVehicleTripsByVehicle(ctx *gin.Context) {
+    vehicleNo := ctx.Query("vehicle_no")
+    startDate := ctx.Query("start_date")
+    endDate := ctx.Query("end_date")
 
-// GET /api/v1/own-vehicle-trips/by-driver?driver_name=...&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
-func (h *OwnVehicleTripHandler) GetOwnVehicleTripsByDriver(ctx *gin.Context) {
-     var query DriverDateQuery
-     
-     if err := ctx.ShouldBindQuery(&query); err != nil {
-          ctx.JSON(http.StatusBadRequest, gin.H{"error": "driver_name, start_date, and end_date are required"})
-          return
-     }
-     
-     trips, err := h.service.GetByDriverAndDateRange(query.DriverName, query.StartDate, query.EndDate)
-     if err != nil {
-          ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-          return
-     }
-     
-     ctx.JSON(http.StatusOK, gin.H{
-          "data": trips,
-          "meta": gin.H{
-               "driver_name": query.DriverName,
-               "start_date":  query.StartDate,
-               "end_date":    query.EndDate,
-               "count":       len(trips),
-          },
-     })
+    if vehicleNo == "" || startDate == "" || endDate == "" {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": "vehicle_no, start_date, end_date are required"})
+        return
+    }
+
+    trips, err := h.service.GetByVehicleAndDateRange(vehicleNo, startDate, endDate)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    ctx.JSON(http.StatusOK, gin.H{
+        "data": trips,
+        "meta": gin.H{
+            "vehicle_no": vehicleNo,
+            "start_date": startDate,
+            "end_date":   endDate,
+            "count":      len(trips),
+        },
+    })
 }

@@ -1,6 +1,7 @@
 package outsidetrip
 
 type OutSideTripReq struct {
+    Date          string `json:"date" binding:"required"`
     LoadPoint     string  `json:"load_point" binding:"required"`
     UnloadPoint   string  `json:"unload_point"`
     Rent          float64 `json:"rent"`
@@ -20,6 +21,7 @@ type OutSideTripReq struct {
 }
 
 type OutSideTripUpdateReq struct {
+    Date          *string  `json:"date"`
     LoadPoint     *string  `json:"load_point"`
     UnloadPoint   *string  `json:"unload_point"`
     Rent          *float64 `json:"rent"`

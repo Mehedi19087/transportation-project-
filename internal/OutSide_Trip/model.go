@@ -9,6 +9,7 @@ import (
 
 type OutSideTrip struct {
 	 ID uint `json:"id" gorm:"primaryKey"`
+	 Date string `json:"date" gorm:"index"`
 	 LoadPoint string `json:"load_point"`
 	 UnloadPoint string `json:"unload_point"`
 	 Rent float64 `json:"rent"`

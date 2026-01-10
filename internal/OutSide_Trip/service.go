@@ -30,6 +30,7 @@ func (s *outSideTripService) CreateOutSideTrip(req *OutSideTripReq) error {
         return errors.New("load point is required")
     }
     trip := &OutSideTrip{
+        Date:          req.Date,
         LoadPoint:     req.LoadPoint,
         UnloadPoint:   req.UnloadPoint,
         Rent:          req.Rent,
@@ -72,6 +73,9 @@ func (s *outSideTripService) UpdateOutSideTrip(id uint, req *OutSideTripUpdateRe
             return errors.New("outside trip data is missing")
         }
         return err
+    }
+    if req.Date != nil {
+        res.Date = *req.Date
     }
     if req.LoadPoint != nil {
         res.LoadPoint = *req.LoadPoint
