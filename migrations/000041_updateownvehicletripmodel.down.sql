@@ -1,0 +1,1 @@
+ALTER TABLE own_vehicle_trips ADD COLUMN driver_name VARCHAR(255);

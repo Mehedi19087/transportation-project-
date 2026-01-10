@@ -31,7 +31,10 @@ func ConnectDB() (*gorm.DB, error){
 		log.Panic("Error Loading .Env File")
 	 }
 
-	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		QueryFields: true,
+		PrepareStmt: false,
+	})
 
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)

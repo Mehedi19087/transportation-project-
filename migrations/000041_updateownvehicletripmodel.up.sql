@@ -1,0 +1,1 @@
+ALTER TABLE own_vehicle_trips DROP COLUMN IF EXISTS driver_name;
