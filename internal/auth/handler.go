@@ -47,7 +47,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
         return
     }
     
-    token, role, err := h.service.Login(&req)
+    token, role, productID,err := h.service.Login(&req)
     if err != nil {
         ctx.JSON(http.StatusUnauthorized, gin.H{
             "error": err.Error(),
@@ -55,11 +55,17 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
         return
     }
     
-    ctx.JSON(http.StatusOK, gin.H{
-        "token": token,
-        "role":  role,
+    response := gin.H{
+        "token":   token,
+        "role":    role,
         "message": "login successful",
-    })
+    }
+    
+    if productID != nil {
+        response["product_id"] = *productID
+    }
+    
+    ctx.JSON(http.StatusOK, response)
 }
 
 // PUT /auth/users/:id (for admin to approve or manager to update own profile)
