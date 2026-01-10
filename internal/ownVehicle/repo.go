@@ -126,7 +126,7 @@ func (r *ownVehicleTripRepository) Delete(id uint) error {
 
 func (r *ownVehicleTripRepository) GetByVehicleAndDateRange(vehicleNo string, startDate, endDate string) ([]OwnVehicleTrip, error) {
 	var trips []OwnVehicleTrip
-	if err := r.db.Where("vehicle_no = ? AND date BETWEEN ? AND ?", vehicleNo, startDate, endDate).
+	if err := r.db.Where("vehicle_no = ? AND date::date BETWEEN ?::date AND ?::date", vehicleNo, startDate, endDate).
 		Order("date ASC, created_at ASC").
 		Find(&trips).Error; err != nil {
 		return nil, err
