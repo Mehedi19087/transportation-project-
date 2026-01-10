@@ -63,7 +63,7 @@ func main() {
 	vehicleService := vehicle.NewVehicleService(vehicleRepo)
 	routePricingService := routepricing.NewRoutePricingService(routePricingRepo)
 	productService:= bill.NewProductService(productRepo,customerRepo)
-	tripService:=    trip.NewService(tripRepo,routePricingService)
+	tripService:=    trip.NewService(tripRepo,routePricingService, OwnVehicleTripRepo)
 	employeeService:= employee.NewEmployeeService(employeeRepo)
 	outsideService:= outsidetrip.NewOutSideTripService(outsideRepo)
     ownVehicleService := ownvehicle.NewService(ownVehicleRepo)
@@ -127,7 +127,8 @@ func main() {
 	ownvehicle.SetupRoutes(router, ownVehicleHandler)
 	purchase.SetupRoutes(router,purchaseHandler)
 	helper.SetupRoutes(router,helperHandler)
-	ownvehicle.SetupRoutess(router,ownVehicleTripHandler)
+	ownvehicle.SetupOwnVehicleTripRoutes(router, ownVehicleTripHandler)
+	
     dailysidecash.SetupRoutes(router, dailySideCashHandler)
 	auth.SetupAuthRoutes(router, authHandler)
 
