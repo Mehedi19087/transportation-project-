@@ -12,6 +12,7 @@ type Product struct {
     CompanyID  uint           `json:"company_id" gorm:"index"`
     Alt        *int           `json:"alt"`
     Vat        *int           `json:"vat"`
+    ManagerName *string        `json:"manager_name"` 
     TripFields pq.StringArray `json:"trip_fields" gorm:"type:text[]"`
     BillFields pq.StringArray `json:"bill_fields" gorm:"type:text[]"`
     CreatedAt  time.Time      `json:"created_at"`

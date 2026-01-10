@@ -254,9 +254,9 @@ func (h *ProductHandler) GetProductBills(ctx *gin.Context) {
     role, _ := ctx.Get("role")
 
     if role == "manager" {
-         pidd, ok := authProductID.(uint64)
+         pidd, ok := authProductID.(uint)  // ✅ Changed from uint64 to uint
          if ok {
-            productID=pidd  
+            productID = uint64(pidd)  // Convert uint to uint64 for assignment
          } else {
                ctx.JSON(http.StatusInternalServerError, gin.H{"error": "product identification failed"})
                return

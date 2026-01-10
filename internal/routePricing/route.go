@@ -9,6 +9,7 @@ import (
 func SetupRoutes(router *gin.Engine, routePricingHandler *RoutePricingHandler) {
     v1 := router.Group("/api/v1")
     v1.Use(auth.AuthMiddleware())
+    v1.Use(auth.RequireRole(auth.RoleAdmin))
     {
         v1.POST("/route-pricing", routePricingHandler.CreateRoutePricing)
         v1.GET("/route-pricing/:id", routePricingHandler.GetRoutePricing)

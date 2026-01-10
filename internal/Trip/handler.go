@@ -109,13 +109,13 @@ func (h *Handler) GetProductTrips(ctx *gin.Context) {
         return
     }
 
-    authProductID, _:= ctx.Get("product_id")
+    authProductID, _ := ctx.Get("product_id")
     role, _ := ctx.Get("role")
 
     if role == "manager" {
-         pidd, ok := authProductID.(uint64)
+         pidd, ok := authProductID.(uint)  // ✅ Changed from uint64 to uint
          if ok {
-            pid=pidd  
+            pid = uint64(pidd)  // Convert to uint64 for assignment
          } else {
                ctx.JSON(http.StatusInternalServerError, gin.H{"error": "product identification failed"})
                return

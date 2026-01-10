@@ -62,6 +62,7 @@ func (s *productService) CreateProduct(req *CreateProductReq) error {
 	product:= &Product{
 		Name: req.Name,
 		CompanyID: req.CompanyID,
+        ManagerName: req.ManagerName,
 		Alt: req.Alt,
 		Vat: req.Vat,
 		CreatedAt: time.Now().UTC(),
@@ -98,6 +99,9 @@ func(s *productService) UpdateProduct(id uint, req *UpdateProductReq) error {
 	 if req.Vat!= nil{
 		 res.Vat= req.Vat
 	 }
+     if req.ManagerName != nil {  // ✅ New field
+         res.ManagerName = req.ManagerName
+     }
 	 if err := s.repo.Update(res); err != nil {
         return err
     }

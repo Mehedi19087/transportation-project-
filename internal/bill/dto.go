@@ -3,12 +3,14 @@ package bill
 type CreateProductReq struct {
 	 Name string `json:"name" binding:"required"`
 	 CompanyID uint `json:"company_id" binding:"required"`
+     ManagerName *string `json:"manager_name"`
 	 Alt *int `json:"alt"`
 	 Vat *int `json:"vat"`
 }
 
 type UpdateProductReq struct {
 	 Name string `json:"name"`
+     ManagerName *string `json:"manager_name"`
 	 Alt *int `json:"alt"`
 	 Vat *int `json:"vat"`
 }

@@ -1,0 +1,1 @@
+ALTER TABLE products DROP COLUMN manager_name;

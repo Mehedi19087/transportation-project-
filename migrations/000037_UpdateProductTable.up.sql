@@ -1,0 +1,1 @@
+ALTER TABLE products ADD COLUMN manager_name VARCHAR(255);
