@@ -230,6 +230,7 @@ package trip
 import (
 	"errors"
 	"time"
+	"log"
 
 	"gorm.io/gorm"
 	"transportation/internal/routePricing"
@@ -302,6 +303,7 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
 		return errors.New("product_id is required")
 	}
 	rate, err := s.routePricingService.GetRate(req.Dealer, req.UnloadPoint)
+	log.Println(req.Dealer, req.UnloadPoint)
 	if err != nil {
 	   return errors.New("route pricing is missing")
 	}
