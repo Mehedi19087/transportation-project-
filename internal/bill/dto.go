@@ -101,4 +101,6 @@ type UpdateBillReq struct {
 type ProductSummary struct {
        ID   uint   `json:"id"`
        Name string `json:"name"`
+       ManagerName string `json:"manager_name"`
+       CompanyID   uint `json:"company_id"`
 }

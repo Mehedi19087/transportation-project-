@@ -146,7 +146,7 @@ func(r *productRepo) GetProductBillFields(productID uint) (pq.StringArray, error
 func (r *productRepo) GetSummaries() ([]ProductSummary, error) {
 	 var summaries []ProductSummary 
 
-	 err := r.db.Model(&Product{}).Select("id,name").Order("name ASC").Scan(&summaries).Error
+	 err := r.db.Model(&Product{}).Select("id,name,manager_name,company_id").Order("name ASC").Scan(&summaries).Error
 
 	 if err != nil {
 		 return nil, err 
