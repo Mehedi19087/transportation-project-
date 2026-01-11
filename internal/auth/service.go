@@ -102,11 +102,13 @@ func (s *authService) UpdateUser(id uint, req UpdateReq, requesterRole string) e
        }
 
        if req.Status != nil {
-           if requesterRole != RoleAdmin {
-               return errors.New("unauthorized")
-           }
            updates["status"] = *req.Status
        }
+       if req.ProductID != nil {
+        updates["product_id"] = *req.ProductID
+    }
+
+
        return s.repo.UpdateUserRecord(id, updates)
    }
 func (s *authService) GetPendingUsers() ([]User, error) {

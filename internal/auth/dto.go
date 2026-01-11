@@ -11,4 +11,5 @@ type UpdateReq struct {
 	 Name  *string `json:"name"`
 	 Password *string `json:"password"`
      Status   *string  `json:"status"`
+	 ProductID *uint    `json:"product_id"`
 }
