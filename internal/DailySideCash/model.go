@@ -11,6 +11,7 @@ type DailySideCash struct {
     Date             time.Time      `json:"date" gorm:"type:date;not null;index"`
     ProductID        uint           `json:"product_id" gorm:"index"`
     Cash             float64        `json:"cash"`
+    WithoutRemaining float64        `json:"without_remaining"`
     RemainingBalance float64        `json:"remaining_balance"`
     ManagerName      string         `json:"manager_name"`
     TripCost         float64        `json:"trip_cost"`

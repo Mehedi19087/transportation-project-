@@ -58,6 +58,8 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 	// Calculate Remaining Balance
 	remainingBalance := totalCash - (req.TripCost + req.OtherCost)
 
+	withoutremaining:= req.Cash 
+
 	record := &DailySideCash{
 		Date:             d,
 		ProductID:        productID,
@@ -66,6 +68,7 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 		TripCost:         req.TripCost,
 		OtherCost:        req.OtherCost,
 		OtherCostDetails: req.OtherCostDetails,
+		WithoutRemaining: withoutremaining,
 	}
 
 	if err := s.repo.Create(record); err != nil {
