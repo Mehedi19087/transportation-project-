@@ -21,7 +21,7 @@ type User struct {
 	 Picture   string    `json:"picture"`
 	 CreatedAt time.Time  `json:"created_at"`
 	 UpdatedAt time.Time `json:"updated_at"`
-	 DeletedAt gorm.DeletedAt `json:"_" gorm:"index"`
+	 DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 // This is what Google will send us

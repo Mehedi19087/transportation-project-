@@ -11,11 +11,6 @@ func SetupAuthRoutes(router *gin.Engine, handler *AuthHandler) {
         auth.POST("/login", handler.Login)
         auth.GET("/pending", handler.GetPendingUsers)
         
-        // Protected routes
-        protected := auth.Group("/")
-        protected.Use(AuthMiddleware())
-        {
-            protected.PUT("/users/:id", handler.UpdateUser)
-        }
+        auth.PUT("/users/:id", AuthMiddleware(), handler.UpdateUser)
     }
 }
