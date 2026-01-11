@@ -9,19 +9,13 @@ func SetupAuthRoutes(router *gin.Engine, handler *AuthHandler) {
     {
         auth.POST("/register", handler.CreateUser)
         auth.POST("/login", handler.Login)
+        auth.GET("/pending", handler.GetPendingUsers)
         
         // Protected routes
         protected := auth.Group("/")
         protected.Use(AuthMiddleware())
         {
             protected.PUT("/users/:id", handler.UpdateUser)
-            
-            // Admin only routes
-            admin := protected.Group("/")
-            admin.Use(RequireRole(RoleAdmin))
-            {
-                admin.GET("/pending", handler.GetPendingUsers)
-            }
         }
     }
 }
