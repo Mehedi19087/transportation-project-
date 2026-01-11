@@ -161,6 +161,9 @@ func (h *OwnVehicleTripHandler) DeleteOwnVehicleTrip(ctx *gin.Context) {
 }
 
 // GET /api/v1/own-vehicle-trips/by-vehicle?vehicle_no=...&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
+// Replace GetOwnVehicleTripsByVehicle function:
+
+// GET /api/v1/own-vehicle-trips/by-vehicle?vehicle_no=...&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
 func (h *OwnVehicleTripHandler) GetOwnVehicleTripsByVehicle(ctx *gin.Context) {
     vehicleNo := ctx.Query("vehicle_no")
     startDate := ctx.Query("start_date")
@@ -177,13 +180,57 @@ func (h *OwnVehicleTripHandler) GetOwnVehicleTripsByVehicle(ctx *gin.Context) {
         return
     }
 
+    // Calculate totals
+    var totalRent float64
+    var totalAdvance float64
+    var totalTripCost float64
+    var totalDieselTaka float64
+    var totalExtraCost float64
+    var totalCommission float64
+
+    for _, trip := range trips {
+        totalRent += trip.Rent
+        totalAdvance += trip.Advance
+        totalTripCost += trip.TripCost
+        totalDieselTaka += trip.DieselTaka
+        totalExtraCost += trip.ExtraCost
+        totalCommission += trip.Commission
+    }
+
+    // Calculate balance: Advance - (TripCost + DieselTaka + ExtraCost)
+    balance := totalAdvance - totalTripCost
+
+    // Determine who gets the amount
+    var driverGets float64
+    var ownerGets float64
+    var balanceStatus string
+
+    if balance >= 0 {
+        driverGets = balance
+        ownerGets = 0
+        balanceStatus = "Driver gets this amount"
+    } else {
+        driverGets = 0
+        ownerGets = -balance // Convert negative to positive
+        balanceStatus = "Driver returns this amount to Owner"
+    }
+
     ctx.JSON(http.StatusOK, gin.H{
         "data": trips,
         "meta": gin.H{
-            "vehicle_no": vehicleNo,
-            "start_date": startDate,
-            "end_date":   endDate,
-            "count":      len(trips),
+            "vehicle_no":       vehicleNo,
+            "start_date":       startDate,
+            "end_date":         endDate,
+            "count":            len(trips),
+            "total_rent":       totalRent,
+            "total_advance":    totalAdvance,
+            "total_trip_cost":  totalTripCost,
+            "total_diesel_taka": totalDieselTaka,
+            "total_extra_cost": totalExtraCost,
+            "balance":          balance,
+            "driver_gets":      driverGets,
+            "owner_gets":       ownerGets,
+            "balance_status":   balanceStatus,
         },
     })
 }
