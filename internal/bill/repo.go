@@ -26,6 +26,12 @@ type ProductRepo interface {
      GetProductBillFields(productID uint) (pq.StringArray, error) 
 
 	 GetSummaries() ([]ProductSummary, error)
+
+	 CreateBillStatus(billStatus *BillStatus) error
+	 GetBillStatus(id uint) (*BillStatus, error)
+	 UpdateBillStatus(billStatus *BillStatus) error
+	 DeleteBillStatus(id uint) error
+	 GetAllBillStatuses(offset, limit int) ([]BillStatus, int64, error)
 }
 
 type productRepo struct {
@@ -152,4 +158,38 @@ func (r *productRepo) GetSummaries() ([]ProductSummary, error) {
 		 return nil, err 
 	 }
 	 return summaries, nil
+}
+
+func (r *productRepo) CreateBillStatus(billStatus *BillStatus) error {
+	return r.db.Create(billStatus).Error
+}
+
+func (r *productRepo) GetBillStatus(id uint) (*BillStatus, error) {
+	var billStatus BillStatus
+	if err := r.db.First(&billStatus, id).Error; err != nil {
+		return nil, err
+	}
+	return &billStatus, nil
+}
+
+func (r *productRepo) UpdateBillStatus(billStatus *BillStatus) error {
+	return r.db.Save(billStatus).Error
+}
+
+func (r *productRepo) DeleteBillStatus(id uint) error {
+	return r.db.Delete(&BillStatus{}, id).Error
+}
+
+func (r *productRepo) GetAllBillStatuses(offset, limit int) ([]BillStatus, int64, error) {
+	var total int64
+	var billStatuses []BillStatus
+
+	if err := r.db.Model(&BillStatus{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := r.db.Order("created_at DESC").Limit(limit).Offset(offset).Find(&billStatuses).Error; err != nil {
+		return nil, 0, err
+	}
+	return billStatuses, total, nil
 }

@@ -1,11 +1,12 @@
 package outsidetrip
 
 import (
-    "errors"
-    "fmt"
-    "time"
+	"errors"
+	"fmt"
+	"time"
+	ownvehicle "transportation/internal/ownVehicle"
 
-    "gorm.io/gorm"
+	"gorm.io/gorm"
 )
 
 type OutSideTripService interface {
@@ -19,10 +20,14 @@ type OutSideTripService interface {
 
 type outSideTripService struct {
     repo OutSideTripRepo
+    ownVehicleTripRepo  ownvehicle.OwnVehicleTripRepository
 }
 
-func NewOutSideTripService(repo OutSideTripRepo) OutSideTripService {
-    return &outSideTripService{repo: repo}
+func NewOutSideTripService(repo OutSideTripRepo, ownoutSideTripRepo ownvehicle.OwnVehicleTripRepository) OutSideTripService {
+    return &outSideTripService {
+        repo: repo,
+        ownVehicleTripRepo: ownoutSideTripRepo,
+    }
 }
 
 func (s *outSideTripService) CreateOutSideTrip(req *OutSideTripReq) error {
@@ -51,8 +56,53 @@ func (s *outSideTripService) CreateOutSideTrip(req *OutSideTripReq) error {
         UpdatedAt:     time.Now(),
     }
 
-    if err := s.repo.Create(trip); err != nil {
-        return fmt.Errorf("failed to create outside trip: %w", err)
+    //start transaction 
+    db := s.repo.GetDB()
+    tx := db.Begin()
+    if tx.Error != nil {
+        return fmt.Errorf("failed to start transaction: %w", tx.Error)
+    }
+
+    if err := s.repo.CreateWithTx(tx, trip); err != nil {
+        tx.Rollback()
+        return fmt.Errorf("failed to create trip: %w", err)
+    }
+
+    if req.LoadPoint != "" {
+         var existing ownvehicle.OwnVehicleTrip 
+         err := tx.Where("trip_id = ?",trip.ID).First(&existing).Error
+
+         if err == gorm.ErrRecordNotFound {
+            ownVehicleTrip := &ownvehicle.OwnVehicleTrip{
+                Date:        req.Date,
+                VehicleNo:   req.VehicleNumber,
+                LoadPoint:   req.LoadPoint,
+                UnloadPoint: req.UnloadPoint,
+                Rent:        req.Rent,
+                Advance:     req.Advance,
+                TripCost:    req.TripCost,
+                Diesel:      req.Diesel,
+                DieselPrice: req.DieselPrice,
+                DieselTaka:  req.Diesel * req.DieselPrice,
+                ExtraCost:   req.ExtraCost,
+                Commission:  req.Rent * 0.1,
+                TripID:      &trip.ID,
+            }
+         
+         if err := s.ownVehicleTripRepo.CreateWithTx(tx, ownVehicleTrip); err != nil {
+                tx.Rollback()
+                return fmt.Errorf("failed to create own vehicle trip: %w", err)
+            }
+        } else if err != nil { 
+            tx.Rollback()
+            return fmt.Errorf("failed to check own vehicle trip: %w", err)
+        }
+    }
+
+    // Commit transaction
+    if err := tx.Commit().Error; err != nil {
+        return fmt.Errorf("failed to commit transaction: %w", err)
+    
     }
 
     return nil
@@ -74,6 +124,14 @@ func (s *outSideTripService) UpdateOutSideTrip(id uint, req *OutSideTripUpdateRe
         }
         return err
     }
+
+    // Start transaction
+    db := s.repo.GetDB()
+    tx := db.Begin()
+    if tx.Error != nil {
+        return fmt.Errorf("failed to start transaction: %w", tx.Error)
+    }
+
     if req.Date != nil {
         res.Date = *req.Date
     }
@@ -100,6 +158,9 @@ func (s *outSideTripService) UpdateOutSideTrip(id uint, req *OutSideTripUpdateRe
     }
     if req.DieselTaka != nil {
         res.DieselTaka = *req.DieselTaka
+    }
+    if req.DieselPrice != nil {
+        res.DieselPrice = *req.DieselPrice
     }
     if req.Pamp != nil {
         res.Pamp = *req.Pamp
@@ -131,17 +192,97 @@ func (s *outSideTripService) UpdateOutSideTrip(id uint, req *OutSideTripUpdateRe
     
     res.UpdatedAt = time.Now()
 
-    if err := s.repo.Update(res); err != nil {
-        return err
+    if err := s.repo.UpdateWithTx(tx, res); err != nil {
+        tx.Rollback()
+        return fmt.Errorf("failed to update outside trip: %w", err)
     }
+
+    // Update OwnVehicleTrip
+    if res.LoadPoint != "" {
+         var existing ownvehicle.OwnVehicleTrip 
+         err := tx.Where("trip_id = ?", res.ID).First(&existing).Error
+
+         if err == gorm.ErrRecordNotFound {
+            // Create if not exists
+            ownVehicleTrip := &ownvehicle.OwnVehicleTrip{
+                Date:        res.Date,
+                VehicleNo:   res.VehicleNumber,
+                LoadPoint:   res.LoadPoint,
+                UnloadPoint: res.UnloadPoint,
+                Rent:        res.Rent,
+                Advance:     res.Advance,
+                TripCost:    res.TripCost,
+                Diesel:      res.Diesel,
+                DieselPrice: res.DieselPrice,
+                DieselTaka:  res.Diesel * res.DieselPrice,
+                ExtraCost:   res.ExtraCost,
+                Commission:  res.Rent * 0.1,
+                TripID:      &res.ID,
+            }
+         
+            if err := s.ownVehicleTripRepo.CreateWithTx(tx, ownVehicleTrip); err != nil {
+                tx.Rollback()
+                return fmt.Errorf("failed to create own vehicle trip: %w", err)
+            }
+        } else if err != nil { 
+            tx.Rollback()
+            return fmt.Errorf("failed to check own vehicle trip: %w", err)
+        } else {
+            // Update existing
+            existing.Date = res.Date
+            existing.VehicleNo = res.VehicleNumber
+            existing.LoadPoint = res.LoadPoint
+            existing.UnloadPoint = res.UnloadPoint
+            existing.Rent = res.Rent
+            existing.Advance = res.Advance
+            existing.TripCost = res.TripCost
+            existing.Diesel = res.Diesel
+            existing.DieselPrice = res.DieselPrice
+            existing.DieselTaka = res.Diesel * res.DieselPrice
+            existing.ExtraCost = res.ExtraCost
+            existing.Commission = res.Rent * 0.1
+            
+            if err := s.ownVehicleTripRepo.UpdateWithTx(tx, &existing); err != nil {
+                tx.Rollback()
+                return fmt.Errorf("failed to update own vehicle trip: %w", err)
+            }
+        }
+    }
+
+    // Commit transaction
+    if err := tx.Commit().Error; err != nil {
+        return fmt.Errorf("failed to commit transaction: %w", err)
+    }
+
     return nil
 }
 
 func (s *outSideTripService) DeleteOutSideTrip(id uint) error {
-    err := s.repo.Delete(id)
-    if err != nil {
-        return err
+    // Start transaction
+    db := s.repo.GetDB()
+    tx := db.Begin()
+    if tx.Error != nil {
+        return fmt.Errorf("failed to start transaction: %w", tx.Error)
     }
+
+    // 1. Delete OwnVehicleTrip first (if exists)
+    // We use the same 'trip_id' logic as in Create/Update
+    if err := s.ownVehicleTripRepo.DeleteByTripIDWithTx(tx, id); err != nil {
+        tx.Rollback()
+        return fmt.Errorf("failed to delete own vehicle trip: %w", err)
+    }
+
+    // 2. Delete OutSideTrip
+    if err := s.repo.DeleteWithTx(tx, id); err != nil {
+        tx.Rollback()
+        return fmt.Errorf("failed to delete outside trip: %w", err)
+    }
+
+    // Commit transaction
+    if err := tx.Commit().Error; err != nil {
+        return fmt.Errorf("failed to commit transaction: %w", err)
+    }
+
     return nil
 }
 

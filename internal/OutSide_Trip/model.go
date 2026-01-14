@@ -17,6 +17,7 @@ type OutSideTrip struct {
 	 TripCost float64 `json:"trip_cost"`
 	 Diesel float64 `json:"diesel"`
 	 ExtraCost float64 `json:"extra_cost"`
+	 DieselPrice float64 `json:"diesel_price" gorm:"not null"`
 	 DieselTaka float64 `json:"diesel_taka"`
 	 Pamp string `json:"pamp"`
 	 Commission float64 `json:"commission"`

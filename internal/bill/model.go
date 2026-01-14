@@ -1,9 +1,10 @@
 package bill
 
 import (
-    "time"
+	"time"
 
-    "github.com/lib/pq"
+	"github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 type Product struct {
@@ -55,4 +56,17 @@ type Bill struct {
     DoNumber              *string   `json:"do_number"`
     CoNumber              *string   `json:"co_number"`
     CreatedAt             time.Time `json:"created_at"`
+}
+
+
+type BillStatus struct {
+    ID          uint      `json:"id" gorm:"primaryKey"`
+    Date        time.Time `json:"date"`
+    CompanyName string    `json:"company_name"`
+    BillAmount  float64   `json:"bill_amount"`
+    VatStatus   string    `json:"vat_status"`
+    Status      string    `json:"status"` // pending / accepted
+    CreatedAt   time.Time `json:"created_at"`
+    UpdatedAt   time.Time  `json:"updated-at"`
+    DeletedAt   gorm.DeletedAt `json:"-"`
 }

@@ -30,4 +30,11 @@ func SetupRoutes(router *gin.Engine, productHandler *ProductHandler) {
      v1.GET("/products/:id/trip-fields", productHandler.GetProductTripFields)
 	 v1.PUT("/products/:id/bill-fields", productHandler.UpdateProductBillFields)
      v1.GET("/products/:id/bill-fields", productHandler.GetProductBillFields)
+
+	 // Bill Status Routes
+	 v1.POST("/bill-statuses", productHandler.CreateBillStatus)
+	 v1.GET("/bill-statuses/:id", productHandler.GetBillStatus)
+	 v1.PUT("/bill-statuses/:id", productHandler.UpdateBillStatus)
+	 v1.DELETE("/bill-statuses/:id", productHandler.DeleteBillStatus)
+	 v1.GET("/bill-statuses", productHandler.GetAllBillStatuses)
 }

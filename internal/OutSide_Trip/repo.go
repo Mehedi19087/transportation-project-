@@ -13,6 +13,12 @@ type OutSideTripRepo interface {
     Get(id uint) (*OutSideTrip, error)
     Delete(id uint) error
 	GetByVehicleMonth(vehicleNumber, month string) ([]OutSideTrip, int64, error)
+
+    //For Transaction
+    GetDB() *gorm.DB
+    CreateWithTx(tx *gorm.DB, trip *OutSideTrip) error 
+    UpdateWithTx(tx *gorm.DB, trip *OutSideTrip) error 
+    DeleteWithTx(tx *gorm.DB, id uint) error
 }
 
 type outSideTripRepo struct {
@@ -72,4 +78,20 @@ func (r *outSideTripRepo) GetByVehicleMonth(vehicleNumber, month string) ([]OutS
     }
     
     return trips, total, nil
+}
+
+func(r *outSideTripRepo) GetDB() *gorm.DB {
+     return r.db
+}
+
+func(r *outSideTripRepo) CreateWithTx(tx *gorm.DB, trip *OutSideTrip) error {
+     return tx.Create(trip).Error 
+}
+
+func(r *outSideTripRepo) UpdateWithTx(tx *gorm.DB, trip *OutSideTrip) error {
+     return tx.Save(trip).Error 
+}
+
+func(r *outSideTripRepo) DeleteWithTx(tx *gorm.DB, id uint) error {
+     return tx.Delete(&OutSideTrip{}, id).Error 
 }

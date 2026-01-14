@@ -65,7 +65,7 @@ func main() {
 	productService:= bill.NewProductService(productRepo,customerRepo)
 	tripService:=    trip.NewService(tripRepo,routePricingService, OwnVehicleTripRepo)
 	employeeService:= employee.NewEmployeeService(employeeRepo)
-	outsideService:= outsidetrip.NewOutSideTripService(outsideRepo)
+	outsideService:= outsidetrip.NewOutSideTripService(outsideRepo,OwnVehicleTripRepo)
     ownVehicleService := ownvehicle.NewService(ownVehicleRepo)
 	purchaseService:= purchase.NewPurchaseService(purchaseRepo)
 	helperService  := helper.NewHelperService(helperRepo)

@@ -30,6 +30,12 @@ type ProductService interface {
     UpdateProductBillFields(productID uint, req *UpdateProductBillFieldsReq) error  // Add this line
     GetProductBillFields(productID uint) ([]string, error)
     GetProductSummaries() ([]ProductSummary, error)
+
+	CreateBillStatus(req *CreateBillStatusReq) error
+	GetBillStatus(id uint) (*BillStatus, error)
+	UpdateBillStatus(id uint, req *UpdateBillStatusReq) error
+	DeleteBillStatus(id uint) error
+	GetAllBillStatuses(page, pageSize int) ([]BillStatus, int64, error)
 }
 
 type productService struct {
@@ -90,8 +96,8 @@ func(s *productService) UpdateProduct(id uint, req *UpdateProductReq) error {
 		  }
 		  return err 
 	 }
-	 if req.Name != "" {
-		 res.Name = req.Name
+	 if req.Name != nil {
+		 res.Name = *req.Name
 	 }
 	 if req.Alt!= nil {
 		 res.Alt= req.Alt
@@ -491,4 +497,102 @@ func(s *productService) GetProductBillFields(productID uint) ([]string, error) {
 
 func (s *productService) GetProductSummaries() ([]ProductSummary, error) {
        return s.repo.GetSummaries()
+}
+
+func (s *productService) CreateBillStatus(req *CreateBillStatusReq) error {
+	billStatus := &BillStatus{
+		Date:        req.Date,
+		CompanyName: req.CompanyName,
+		BillAmount:  req.BillAmount,
+		VatStatus:   req.VatStatus,
+		Status:      req.Status,
+		CreatedAt:   time.Now().UTC(),
+	}
+
+	if err := s.repo.CreateBillStatus(billStatus); err != nil {
+		return fmt.Errorf("failed to create bill status: %w", err)
+	}
+	return nil
+}
+
+func (s *productService) GetBillStatus(id uint) (*BillStatus, error) {
+	if id == 0 {
+		return nil, errors.New("invalid bill status id")
+	}
+
+	billStatus, err := s.repo.GetBillStatus(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("bill status not found")
+		}
+		return nil, err
+	}
+	return billStatus, nil
+}
+
+func (s *productService) UpdateBillStatus(id uint, req *UpdateBillStatusReq) error {
+	billStatus, err := s.repo.GetBillStatus(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.New("bill status not found")
+		}
+		return err
+	}
+
+	if req.Date != nil {
+		billStatus.Date = *req.Date
+	}
+	if req.CompanyName != nil {
+		billStatus.CompanyName = *req.CompanyName
+	}
+	if req.BillAmount != nil {
+		billStatus.BillAmount = *req.BillAmount
+	}
+	if req.VatStatus != nil {
+		billStatus.VatStatus = *req.VatStatus
+	}
+	if req.Status != nil {
+		billStatus.Status = *req.Status
+	}
+
+	if err := s.repo.UpdateBillStatus(billStatus); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *productService) DeleteBillStatus(id uint) error {
+	if id == 0 {
+		return errors.New("invalid bill status id")
+	}
+
+	// Verify existence
+	_, err := s.repo.GetBillStatus(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.New("bill status not found")
+		}
+		return err
+	}
+
+	if err := s.repo.DeleteBillStatus(id); err != nil {
+		return fmt.Errorf("failed to delete bill status: %w", err)
+    }
+    return nil
+}
+
+func (s *productService) GetAllBillStatuses(page, pageSize int) ([]BillStatus, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 10
+	}
+	offset := (page - 1) * pageSize
+
+	billStatuses, total, err := s.repo.GetAllBillStatuses(offset, pageSize)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to list bill statuses: %w", err)
+	}
+	return billStatuses, total, nil
 }

@@ -1,5 +1,7 @@
 package bill 
 
+import "time"
+
 type CreateProductReq struct {
 	 Name string `json:"name" binding:"required"`
 	 CompanyID uint `json:"company_id" binding:"required"`
@@ -9,7 +11,7 @@ type CreateProductReq struct {
 }
 
 type UpdateProductReq struct {
-	 Name string `json:"name"`
+	 Name *string `json:"name"`
      ManagerName *string `json:"manager_name"`
 	 Alt *int `json:"alt"`
 	 Vat *int `json:"vat"`
@@ -103,4 +105,20 @@ type ProductSummary struct {
        Name string `json:"name"`
        ManagerName string `json:"manager_name"`
        CompanyID   uint `json:"company_id"`
+}
+
+type CreateBillStatusReq struct {
+	Date        time.Time `json:"date"`
+	CompanyName string    `json:"company_name" binding:"required"`
+	BillAmount  float64   `json:"bill_amount" binding:"required"`
+	VatStatus   string    `json:"vat_status"`
+	Status      string    `json:"status"`
+}
+
+type UpdateBillStatusReq struct {
+	Date        *time.Time `json:"date"`
+	CompanyName *string    `json:"company_name"`
+	BillAmount  *float64   `json:"bill_amount"`
+	VatStatus   *string    `json:"vat_status"`
+	Status      *string    `json:"status"`
 }

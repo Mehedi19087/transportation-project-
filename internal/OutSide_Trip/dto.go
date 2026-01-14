@@ -9,6 +9,8 @@ type OutSideTripReq struct {
     TripCost      float64 `json:"trip_cost"`
     Diesel        float64 `json:"diesel"`
     ExtraCost     float64 `json:"extra_cost"`
+    DieselPrice float64 `json:"diesel_price"`
+
     DieselTaka    float64 `json:"diesel_taka"`
     Pamp          string  `json:"pamp"`
     Commission    float64 `json:"commission"`
@@ -39,6 +41,8 @@ type OutSideTripUpdateReq struct {
     DriverPhone   *string  `json:"driver_phone"`
     Due           *float64 `json:"due"`
     DueStatus     *string  `json:"due_status"`
+    DieselPrice   *float64 `json:"diesel_price"`
+
 }
 
 type VehicleMonthlySummary struct {
