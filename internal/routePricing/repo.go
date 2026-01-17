@@ -11,7 +11,7 @@ type RoutePricingRepo interface {
     GetAll(offset, limit int) ([]RoutePricing, int64, error)
     Get(id uint) (*RoutePricing, error)
     Delete(id uint) error
-    GetRate(dealerName, destination string) (float64, error)
+    GetRate(productID uint, dealerName, destination string) (float64, error)
     GetDealerNames() ([]string, error)
 }
 
@@ -59,9 +59,9 @@ func (r *routePricingRepo) GetAll(offset, limit int) ([]RoutePricing, int64, err
     return routePricings, total, nil
 }
 
-func(r *routePricingRepo) GetRate(dealerName, destination string) (float64, error) {
+func(r *routePricingRepo) GetRate(productID uint, dealerName, destination string) (float64, error) {
      var routePricing RoutePricing 
-     if err := r.db.Where("dealer_name = ? AND destination = ?", dealerName, destination).First(&routePricing).Error; err!= nil {
+     if err := r.db.Where("product_id = ? AND dealer_name = ? AND destination = ?", productID, dealerName, destination).First(&routePricing).Error; err!= nil {
          return 0, err 
      }
      return routePricing.Rate, nil 

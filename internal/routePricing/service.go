@@ -12,7 +12,7 @@ type RoutePricingService interface {
     UpdateRoutePricing(id uint, req *RoutePricingUpdateReq) error
     DeleteRoutePricing(id uint) error
     GetAllRoutePricing(page, pageSize int) ([]RoutePricing, int64, error)
-    GetRate(dealerName, destination string) (float64, error)
+    GetRate(productID uint, dealerName, destination string) (float64, error)
     GetDealerNames() ([]string, error)
 }
 
@@ -25,6 +25,9 @@ func NewRoutePricingService(repo RoutePricingRepo) RoutePricingService {
 }
 
 func (s *routePricingService) CreateRoutePricing(req *RoutePricingReq) error {
+    if req.ProductID == 0 {
+        return errors.New("product id is required")
+    }
     if req.DealerName == "" {
         return errors.New("dealer name is required")
     }
@@ -33,6 +36,7 @@ func (s *routePricingService) CreateRoutePricing(req *RoutePricingReq) error {
     }
 
     routePricing := &RoutePricing{
+        ProductID:   req.ProductID,
         DealerName:  req.DealerName,
         Destination: req.Destination,
         Rate:        req.Rate,
@@ -62,6 +66,9 @@ func (s *routePricingService) UpdateRoutePricing(id uint, req *RoutePricingUpdat
         return err
     }
 
+    if req.ProductID != 0 {
+        res.ProductID = req.ProductID
+    }
     if req.DealerName != "" {
         res.DealerName = req.DealerName
     }
@@ -103,8 +110,8 @@ func (s *routePricingService) GetAllRoutePricing(page, pageSize int) ([]RoutePri
     return routePricings, total, nil
 }
 
-func (s *routePricingService) GetRate(dealerName, destination string) (float64, error) {
-    rate, err := s.repo.GetRate(dealerName, destination)
+func (s *routePricingService) GetRate(productID uint, dealerName, destination string) (float64, error) {
+    rate, err := s.repo.GetRate(productID, dealerName, destination)
     if err != nil {
         return 0, errors.New("rate not found for the given dealer and destination")
     }

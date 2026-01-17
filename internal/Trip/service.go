@@ -51,7 +51,7 @@ func (s *service) calculateFields(item *Trip) error {
 	// Fetch route rate (if available) for VAT/profit calculation
 	routeRate := 0.0
 	if item.LoadPoint != nil && item.UnloadPoint != nil && *item.LoadPoint != "" && *item.UnloadPoint != "" {
-		rate, err := s.routePricingService.GetRate(*item.Dealer, *item.UnloadPoint)
+		rate, err := s.routePricingService.GetRate(item.ProductID, *item.Dealer, *item.UnloadPoint)
 		if err == nil {
 			routeRate = float64(rate)
 			vat := routeRate * 0.20
@@ -76,7 +76,7 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
     }
 
     log.Printf("DEBUG: CreateTrip - Dealer: '%s', UnloadPoint: '%s'", req.Dealer, req.UnloadPoint)
-    rate, err := s.routePricingService.GetRate(req.Dealer, req.UnloadPoint)
+    rate, err := s.routePricingService.GetRate(req.ProductID, req.Dealer, req.UnloadPoint)
     if err != nil {
         log.Printf("ERROR: GetRate failed for Dealer: '%s', UnloadPoint: '%s': %v", req.Dealer, req.UnloadPoint, err)
         return fmt.Errorf("route pricing is missing for dealer '%s' and destination '%s'", req.Dealer, req.UnloadPoint)

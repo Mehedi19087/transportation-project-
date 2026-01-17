@@ -159,7 +159,7 @@ func (h *RoutePricingHandler) GetRate(ctx *gin.Context) {
         return
     }
 
-    rate, err := h.service.GetRate(req.DealerName, req.Destination)
+    rate, err := h.service.GetRate(req.ProductID, req.DealerName, req.Destination)
     if err != nil {
         ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
         return
