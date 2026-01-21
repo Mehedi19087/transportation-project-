@@ -94,7 +94,7 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 		existing.Date = d
 	}
 	if req.Cash != nil {
-		existing.Cash = *req.Cash
+		existing.Cash += *req.Cash
 	}
 	if req.RemainingBalance != nil {
 		existing.RemainingBalance = *req.RemainingBalance
@@ -108,6 +108,7 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 	if req.OtherCostDetails != nil {
 		existing.OtherCostDetails = *req.OtherCostDetails
 	}
+	existing.WithoutRemaining = existing.Cash
 
 	if err := s.repo.Update(existing); err != nil {
 		return fmt.Errorf("update daily side cash: %w", err)

@@ -4,6 +4,7 @@ package dailysidecash
       "net/http"
       "strconv"
       "transportation/internal/auth"
+      "transportation/internal/utils"
 
       "github.com/gin-gonic/gin"
   )
@@ -52,7 +53,22 @@ package dailysidecash
           return
       }
 
-      c.JSON(http.StatusCreated, gin.H{"message": "created", "data": rec})
+      responseData := DailySideCashResponse{
+          ID:               rec.ID,
+          Date:             rec.Date,
+          ProductID:        rec.ProductID,
+          Cash:             rec.Cash,
+          WithoutRemaining: rec.WithoutRemaining,
+          RemainingBalance: rec.RemainingBalance,
+          ManagerName:      rec.ManagerName,
+          TripCost:         rec.TripCost,
+          OtherCost:        rec.OtherCost,
+          OtherCostDetails: rec.OtherCostDetails,
+          CreatedAt:        utils.BDTime{Time: rec.CreatedAt},
+          UpdatedAt:        utils.BDTime{Time: rec.UpdatedAt},
+      }
+
+      c.JSON(http.StatusCreated, gin.H{"message": "created", "data": responseData})
   }
 
   func (h *Handler) Update(c *gin.Context) {
@@ -99,7 +115,22 @@ package dailysidecash
           return
       }
 
-      c.JSON(http.StatusOK, gin.H{"data": rec})
+      responseData := DailySideCashResponse{
+          ID:               rec.ID,
+          Date:             rec.Date,
+          ProductID:        rec.ProductID,
+          Cash:             rec.Cash,
+          WithoutRemaining: rec.WithoutRemaining,
+          RemainingBalance: rec.RemainingBalance,
+          ManagerName:      rec.ManagerName,
+          TripCost:         rec.TripCost,
+          OtherCost:        rec.OtherCost,
+          OtherCostDetails: rec.OtherCostDetails,
+          CreatedAt:        utils.BDTime{Time: rec.CreatedAt},
+          UpdatedAt:        utils.BDTime{Time: rec.UpdatedAt},
+      }
+
+      c.JSON(http.StatusOK, gin.H{"data": responseData})
   }
 
   func (h *Handler) GetAll(c *gin.Context) {
@@ -142,8 +173,27 @@ package dailysidecash
           return
       }
 
+      // Convert to response DTOs with BD time
+      responseRecords := make([]DailySideCashResponse, len(records))
+      for i, record := range records {
+          responseRecords[i] = DailySideCashResponse{
+              ID:               record.ID,
+              Date:             record.Date,
+              ProductID:        record.ProductID,
+              Cash:             record.Cash,
+              WithoutRemaining: record.WithoutRemaining,
+              RemainingBalance: record.RemainingBalance,
+              ManagerName:      record.ManagerName,
+              TripCost:         record.TripCost,
+              OtherCost:        record.OtherCost,
+              OtherCostDetails: record.OtherCostDetails,
+              CreatedAt:        utils.BDTime{Time: record.CreatedAt},
+              UpdatedAt:        utils.BDTime{Time: record.UpdatedAt},
+          }
+      }
+
       c.JSON(http.StatusOK, gin.H{
-          "data": records,
+          "data": responseRecords,
           "meta": gin.H{
               "page":      page,
               "page_size": pageSize,
@@ -210,5 +260,20 @@ package dailysidecash
           return
       }
 
-      c.JSON(http.StatusOK, gin.H{"data": rec})
+      responseData := DailySideCashResponse{
+          ID:               rec.ID,
+          Date:             rec.Date,
+          ProductID:        rec.ProductID,
+          Cash:             rec.Cash,
+          WithoutRemaining: rec.WithoutRemaining,
+          RemainingBalance: rec.RemainingBalance,
+          ManagerName:      rec.ManagerName,
+          TripCost:         rec.TripCost,
+          OtherCost:        rec.OtherCost,
+          OtherCostDetails: rec.OtherCostDetails,
+          CreatedAt:        utils.BDTime{Time: rec.CreatedAt},
+          UpdatedAt:        utils.BDTime{Time: rec.UpdatedAt},
+      }
+
+      c.JSON(http.StatusOK, gin.H{"data": responseData})
   }
