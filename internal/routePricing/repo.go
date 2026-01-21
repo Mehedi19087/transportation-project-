@@ -61,7 +61,7 @@ func (r *routePricingRepo) GetAll(offset, limit int) ([]RoutePricing, int64, err
 
 func(r *routePricingRepo) GetRate(productID uint, dealerName, destination string) (float64, error) {
      var routePricing RoutePricing 
-     if err := r.db.Where("product_id = ? AND dealer_name = ? AND destination = ?", productID, dealerName, destination).First(&routePricing).Error; err!= nil {
+     if err := r.db.Where("product_id = ? AND TRIM(dealer_name) = ? AND TRIM(destination) = ?", productID, dealerName, destination).First(&routePricing).Error; err!= nil {
          return 0, err 
      }
      return routePricing.Rate, nil 
