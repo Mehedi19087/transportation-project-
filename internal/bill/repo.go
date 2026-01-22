@@ -15,6 +15,9 @@ type ProductRepo interface {
 	 GetAll(offset , limit int) ([]Product, int64 ,error)
 	 GetByCompany(companyID uint, offset , limit int) ([]Product, int64, error)
 
+
+	 CreateBillWithTx(tx *gorm.DB,bill *Bill) error
+
 	 GetBill(id uint) (*Bill, error)
 	 GetBillsByProduct(productID uint, offset , limit int) ([]Bill, int64, error)
 	 UpdateBill(bill *Bill) error
@@ -32,6 +35,9 @@ type ProductRepo interface {
 	 UpdateBillStatus(billStatus *BillStatus) error
 	 DeleteBillStatus(id uint) error
 	 GetAllBillStatuses(offset, limit int) ([]BillStatus, int64, error)
+
+	 DeleteBillByTripID(tx *gorm.DB, tripID uint) error
+	 DeleteBillByOutsideTripID(tx *gorm.DB, outsideTripID uint) error
 }
 
 type productRepo struct {
@@ -192,4 +198,16 @@ func (r *productRepo) GetAllBillStatuses(offset, limit int) ([]BillStatus, int64
 		return nil, 0, err
 	}
 	return billStatuses, total, nil
+}
+
+func(r *productRepo) CreateBillWithTx(tx *gorm.DB,bill *Bill) error {
+	 return tx.Create(bill).Error 
+}
+
+func (r *productRepo) DeleteBillByTripID(tx *gorm.DB, tripID uint) error {
+	return tx.Where("trip_id = ?", tripID).Delete(&Bill{}).Error
+}
+
+func (r *productRepo) DeleteBillByOutsideTripID(tx *gorm.DB, outsideTripID uint) error {
+	return tx.Where("outside_trip_id = ?", outsideTripID).Delete(&Bill{}).Error
 }

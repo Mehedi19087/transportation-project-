@@ -54,7 +54,10 @@ type Bill struct {
     Amount                *float64  `json:"amount"`
     TotalAmount           *float64  `json:"total_amount"`
     DoNumber              *string   `json:"do_number"`
-    CoNumber              *string   `json:"co_number"`
+    CoNumber              *string   `json:"co_number"` 
+    Date                  *string   `json:"date"`
+    TripID                *uint `json:"trip_id" gorm:"index"`
+    OutsideTripID         *uint `json:"outside_trip_id" gorm:"index"`
     CreatedAt             time.Time `json:"created_at"`
 }
 

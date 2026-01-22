@@ -7,6 +7,7 @@ import (
 	"transportation/internal/Trip"
 	"transportation/internal/auth"
 	"transportation/internal/bill"
+	"transportation/internal/calan"
 	"transportation/internal/customer"
 	"transportation/internal/database"
 	"transportation/internal/dealer"
@@ -53,7 +54,7 @@ func main() {
 	OwnVehicleTripRepo := ownvehicle.NewOwnVehicleTripRepository(db)  
 	dailySideCashRepo := dailysidecash.NewDailySideCashRepo(db)
 	authRepo := auth.NewAuthRepo(db)
-    
+    calanRepo := calan.NewCalanRepo(db)
    
 
 
@@ -63,15 +64,16 @@ func main() {
 	vehicleService := vehicle.NewVehicleService(vehicleRepo)
 	routePricingService := routepricing.NewRoutePricingService(routePricingRepo)
 	productService:= bill.NewProductService(productRepo,customerRepo)
-	tripService:=    trip.NewService(tripRepo,routePricingService, OwnVehicleTripRepo)
+	tripService:=    trip.NewService(tripRepo,routePricingService, OwnVehicleTripRepo, productRepo, calanRepo)
 	employeeService:= employee.NewEmployeeService(employeeRepo)
-	outsideService:= outsidetrip.NewOutSideTripService(outsideRepo,OwnVehicleTripRepo)
+	outsideService:= outsidetrip.NewOutSideTripService(outsideRepo,OwnVehicleTripRepo, calanRepo, productRepo)
     ownVehicleService := ownvehicle.NewService(ownVehicleRepo)
 	purchaseService:= purchase.NewPurchaseService(purchaseRepo)
 	helperService  := helper.NewHelperService(helperRepo)
 	ownVehicleTripService:= ownvehicle.NewOwnVehicleTripService(OwnVehicleTripRepo)
     dailySideCashService := dailysidecash.NewService(dailySideCashRepo)
     authService := auth.NewAuthService(authRepo)
+    calanService := calan.NewCalanService(calanRepo)
 
     
 
@@ -91,7 +93,7 @@ func main() {
 	ownVehicleTripHandler:= ownvehicle.NewOwnVehicleTripHandler(ownVehicleTripService)
     dailySideCashHandler := dailysidecash.NewHandler(dailySideCashService)
 	authHandler := auth.NewAuthHandler(authService)
-
+    calanHandler := calan.NewCalanHandler(calanService)
 
 
 	router:= gin.Default()
@@ -131,6 +133,7 @@ func main() {
 	
     dailysidecash.SetupRoutes(router, dailySideCashHandler)
 	auth.SetupAuthRoutes(router, authHandler)
+    calan.SetupRoutes(router, calanHandler)
 
 	if err := router.Run(":8080"); err != nil {
     log.Fatalf("server failed: %v", err)

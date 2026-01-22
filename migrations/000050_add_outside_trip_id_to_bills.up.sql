@@ -1,0 +1,1 @@
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS outside_trip_id BIGINT;

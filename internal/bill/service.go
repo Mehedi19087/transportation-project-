@@ -203,6 +203,8 @@ func (s *productService) CreateBill(req *CreateBillReq) error {
         TotalAmount:           req.TotalAmount,
         DoNumber:              req.DoNumber,
         CoNumber:              req.CoNumber,
+        Date:                  req.Date,
+        TripID:                req.TripID,
         CreatedAt:             time.Now().UTC(),
     }
 
@@ -377,6 +379,12 @@ func(s *productService) UpdateBill(id uint, req *UpdateBillReq) error {
     }
     if req.CoNumber != nil {
         bill.CoNumber = req.CoNumber
+    }
+    if req.Date != nil {
+        bill.Date = req.Date
+    }
+    if req.TripID != nil {
+        bill.TripID = req.TripID
     }
 
     if err := s.repo.UpdateBill(bill); err != nil {

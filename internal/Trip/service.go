@@ -3,12 +3,15 @@ package trip
 import (
 	"errors"
 	"fmt"
-	"time"
 	"log"
+	"time"
+
+	"transportation/internal/bill"
+	"transportation/internal/calan"
+	"transportation/internal/ownVehicle"
 
 	"gorm.io/gorm"
-	"transportation/internal/ownVehicle"
-	
+
 	"transportation/internal/routePricing"
 )
 
@@ -24,13 +27,17 @@ type service struct {
     repo                Repository
     routePricingService routepricing.RoutePricingService
     ownVehicleTripRepo  ownvehicle.OwnVehicleTripRepository
+    billRepo            bill.ProductRepo
+    calanRepo           calan.CalanRepo
 }
 
-func NewService(r Repository, rps routepricing.RoutePricingService, ovr ownvehicle.OwnVehicleTripRepository) Service {
+func NewService(r Repository, rps routepricing.RoutePricingService, ovr ownvehicle.OwnVehicleTripRepository, billRepo bill.ProductRepo, calanRepo calan.CalanRepo) Service {
     return &service{
         repo:                r,
         routePricingService: rps,
         ownVehicleTripRepo:  ovr,
+        billRepo:            billRepo,
+        calanRepo:           calanRepo,
     }
 }
 
@@ -130,6 +137,8 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
         UpdatedAt:     time.Now().UTC(),
     }
 
+    
+
     // Calculate all dependent fields
     if err := s.calculateFields(item); err != nil {
         return err
@@ -146,6 +155,31 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
     if err := s.repo.CreateWithTx(tx, item); err != nil {
         tx.Rollback()
         return fmt.Errorf("failed to create trip: %w", err)
+    }
+
+    // Create Bill
+    status := "Pending"
+    newBill := &bill.Bill{
+        ProductID:     item.ProductID,
+        TripID:        &item.ID,
+        Date:          item.Date,
+        VehicleNo:     item.VehicleNo,
+        DriverName:    item.DriverName,
+        FromLocation:  item.LoadPoint,
+        Destination:   item.UnloadPoint,
+        Quantity:      item.Quantity,
+        TotalRate:     item.TotalRate,
+        Advance:       item.Advance,
+        Due:           item.Due,
+        Amount:        item.TotalRate,
+        TotalAmount:   item.TotalRate,
+        DealerName:    item.Dealer,
+        Status:        &status,
+        CreatedAt:     time.Now().UTC(),
+    }
+    if err := s.billRepo.CreateBillWithTx(tx, newBill); err != nil {
+        tx.Rollback()
+        return fmt.Errorf("failed to create bill: %w", err)
     }
 
     // 2. Create OwnVehicleTrip (only if VehicleNo exists)
@@ -185,6 +219,23 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
             return fmt.Errorf("failed to check own vehicle trip: %w", err)
         }
         // If no error (record exists), do nothing
+    }
+
+    // 3. Create Calan if Due > 0
+    if req.Due > 0 {
+        newCalan := &calan.Calan{
+            Date:        item.Date,
+            VehicleNo:   item.VehicleNo,
+            Destination: item.Destination,
+            Amount:      item.Due,
+            TripID:      &item.ID,
+            Status:      "unpaid",
+            CreatedAt:   time.Now().UTC(),
+        }
+        if err := s.calanRepo.Create(tx, newCalan); err != nil {
+            tx.Rollback()
+            return fmt.Errorf("failed to create calan: %w", err)
+        }
     }
 
     // Commit transaction
@@ -369,6 +420,42 @@ func (s *service) UpdateTrip(id uint, req *UpdateTripReq) error {
         return fmt.Errorf("failed to update trip: %w", err)
     }
 
+    // Update Bill
+    var billItem bill.Bill
+    if err := tx.Where("trip_id = ?", item.ID).First(&billItem).Error; err == nil {
+        billItem.Date = item.Date
+        billItem.VehicleNo = item.VehicleNo
+        billItem.DriverName = item.DriverName
+        billItem.FromLocation = item.LoadPoint
+        billItem.Destination = item.UnloadPoint
+        billItem.Quantity = item.Quantity
+        billItem.TotalRate = item.TotalRate
+        billItem.Advance = item.Advance
+        billItem.Due = item.Due
+        billItem.Amount = item.TotalRate
+        billItem.TotalAmount = item.TotalRate
+        billItem.DealerName = item.Dealer
+        
+        if err := tx.Save(&billItem).Error; err != nil {
+             tx.Rollback()
+             return fmt.Errorf("failed to update bill: %w", err)
+        }
+    }
+
+    // Update Calan
+    var calanItem calan.Calan
+    if err := tx.Where("trip_id = ?", item.ID).First(&calanItem).Error; err == nil {
+        calanItem.Date = item.Date
+        calanItem.VehicleNo = item.VehicleNo
+        calanItem.Destination = item.Destination
+        calanItem.Amount = item.Due
+        
+        if err := tx.Save(&calanItem).Error; err != nil {
+             tx.Rollback()
+             return fmt.Errorf("failed to update calan: %w", err)
+        }
+    }
+
     // Handle OwnVehicleTrip (only if VehicleNo exists)
     vehicleNo := ""
     if item.VehicleNo != nil {
@@ -489,7 +576,19 @@ func (s *service) DeleteTrip(id uint) error {
         return fmt.Errorf("failed to delete own vehicle trip: %w", err)
     }
 
-    // 2. Delete Trip
+    // 2. Delete Associated Bill
+    if err := s.billRepo.DeleteBillByTripID(tx, id); err != nil {
+        tx.Rollback()
+        return fmt.Errorf("failed to delete associated bill: %w", err)
+    }
+
+    // 3. Delete Associated Calan
+    if err := s.calanRepo.DeleteByTripID(tx, id); err != nil {
+        tx.Rollback()
+        return fmt.Errorf("failed to delete associated calan: %w", err)
+    }
+
+    // 4. Delete Trip
     if err := tx.Delete(&Trip{}, id).Error; err != nil {
         tx.Rollback()
         return fmt.Errorf("failed to delete trip: %w", err)

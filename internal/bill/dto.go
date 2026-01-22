@@ -60,6 +60,8 @@ type CreateBillReq struct {
     TotalAmount           *float64 `json:"total_amount"`
     DoNumber              *string  `json:"do_number"`
     CoNumber              *string  `json:"co_number"`
+    Date                  *string  `json:"date"`
+    TripID                *uint    `json:"trip_id"`
 }
 
 type UpdateBillReq struct {
@@ -97,6 +99,8 @@ type UpdateBillReq struct {
     TotalAmount           *float64 `json:"total_amount"`
     DoNumber              *string  `json:"do_number"`
     CoNumber              *string  `json:"co_number"`
+    Date                  *string  `json:"date"`
+    TripID                *uint    `json:"trip_id"`
 }
 
 
