@@ -3,7 +3,6 @@ package dailysidecash
 import (
 	"errors"
 	"fmt"
-	"math"
 	"time"
 
 	"gorm.io/gorm"
@@ -52,10 +51,12 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 	totalCash := carryOver + req.Cash
 
 	// Calculate Remaining Balance
-	if 
-	remainingBalance := totalCash - (req.TripCost + req.OtherCost)
+	remainingBalance := totalCash
+	if req.TripCost > 0 || req.OtherCost > 0 {
+		remainingBalance = totalCash - (req.TripCost + req.OtherCost)
+	}
 
-	withoutremaining:= req.Cash 
+	withoutremaining := req.Cash
 
 	record := &DailySideCash{
 		Date:             d,
@@ -93,18 +94,16 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 	if req.Cash != nil {
 		existing.Cash += *req.Cash
 	}
-	if req.RemainingBalance != nil {
-		existing.RemainingBalance = *req.RemainingBalance
-	}
 	if req.TripCost != nil {
-		existing.TripCost = *req.TripCost
+		existing.TripCost += *req.TripCost
 	}
 	if req.OtherCost != nil {
-		existing.OtherCost = *req.OtherCost
+		existing.OtherCost += *req.OtherCost
 	}
 	if req.OtherCostDetails != nil {
 		existing.OtherCostDetails = *req.OtherCostDetails
 	}
+	existing.RemainingBalance = existing.Cash - (existing.TripCost + existing.OtherCost)
 	existing.WithoutRemaining = existing.Cash
 
 	if err := s.repo.Update(existing); err != nil {
