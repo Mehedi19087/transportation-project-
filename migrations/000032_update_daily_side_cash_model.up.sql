@@ -10,10 +10,10 @@ DROP COLUMN IF EXISTS shongram;
 
 ALTER TABLE daily_side_cash
 ADD COLUMN product_id bigint,
-ADD COLUMN cash numeric,
-ADD COLUMN remaining_balance numeric,
-ADD COLUMN trip_cost numeric,
-ADD COLUMN other_cost numeric,
+ADD COLUMN cash decimal(10,2),
+ADD COLUMN remaining_balance decimal(10,2),
+ADD COLUMN trip_cost decimal(10,2),
+ADD COLUMN other_cost decimal(10,2),
 ADD COLUMN other_cost_details text;
 
 CREATE INDEX idx_daily_side_cash_product_id ON daily_side_cash(product_id);

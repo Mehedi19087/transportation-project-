@@ -1,5 +1,7 @@
 # Project Context: Transportation Management System
 
+#Listen without my permission do not write a single line of code, if i told work read only mode just give me plan and works as a read only mode, then if i told you to write code then only you can write code.
+
 ## Overview
 This project is a comprehensive **Transportation Management System** built with Go. It is designed to manage the logistics and operations of a transportation business, covering a wide range of functionalities from trip management to financial tracking.
 

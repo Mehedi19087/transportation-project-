@@ -3,6 +3,7 @@ package dailysidecash
 import (
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"gorm.io/gorm"
@@ -42,11 +43,6 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 	var carryOver float64 = 0
 	prevRecord, err := s.repo.GetByDate(productID, prevDate)
 	if err != nil {
-		// If it's a real DB error (not just "not found"), return it so we can see what's wrong
-		if !errors.Is(err, gorm.ErrRecordNotFound) && err.Error() != "daily side cash record not found for the given date and product" {
-			return nil, fmt.Errorf("failed to fetch previous day record: %w", err)
-		}
-		// If it is just not found, we start with 0 (normal for first day)
 		carryOver = 0
 	} else if prevRecord != nil {
 		carryOver = prevRecord.RemainingBalance
@@ -56,6 +52,7 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 	totalCash := carryOver + req.Cash
 
 	// Calculate Remaining Balance
+	if 
 	remainingBalance := totalCash - (req.TripCost + req.OtherCost)
 
 	withoutremaining:= req.Cash 
