@@ -16,7 +16,7 @@ type ProductRepo interface {
 	 GetByCompany(companyID uint, offset , limit int) ([]Product, int64, error)
 
 
-	 CreateBillWithTx(tx *gorm.DB,bill *Bill) error
+	 
 
 	 GetBill(id uint) (*Bill, error)
 	 GetBillsByProduct(productID uint, offset , limit int) ([]Bill, int64, error)
@@ -36,6 +36,8 @@ type ProductRepo interface {
 	 DeleteBillStatus(id uint) error
 	 GetAllBillStatuses(offset, limit int) ([]BillStatus, int64, error)
 
+
+     CreateBillWithTx(tx *gorm.DB,bill *Bill) error
 	 DeleteBillByTripID(tx *gorm.DB, tripID uint) error
 	 DeleteBillByOutsideTripID(tx *gorm.DB, outsideTripID uint) error
 }

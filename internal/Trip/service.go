@@ -172,7 +172,7 @@ func (s *service) CreateTrip(req *CreateTripReq) error {
         Advance:       item.Advance,
         Due:           item.Due,
         Amount:        item.TotalRate,
-        TotalAmount:   item.TotalRate,
+        TotalAmount:   item.UnitPrice,
         DealerName:    item.Dealer,
         Status:        &status,
         CreatedAt:     time.Now().UTC(),
