@@ -124,7 +124,7 @@ func (h *VehicleHandler) GetAllVehicle(ctx *gin.Context) {
 
     limit, err := strconv.Atoi(limitStr)
     if err != nil || limit < 1 {
-        limit = 10
+        limit = 100 
     }
 
     vehicles, nextCursor, err := h.service.GetAllVehicle(cursorStr, limit)

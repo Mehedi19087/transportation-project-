@@ -162,7 +162,7 @@ func (s *vehicleService) DeleteVehicle(id uint) error {
 }
 
 func (s *vehicleService) GetAllVehicle(cursorStr string, limit int) ([]Vehicle, string, error) {
-    if limit < 1 || limit > 10 {
+    if limit < 1 || limit > 100{
         limit = 10
     }
 
