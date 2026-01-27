@@ -2,6 +2,8 @@ package vehicle
 
 import (
     "errors"
+    "transportation/internal/utils"
+
     "gorm.io/gorm"
 )
 
@@ -9,7 +11,7 @@ type VehicleRepo interface {
     Create(vehicle *Vehicle) error
     Update(vehicle *Vehicle) error
     Get(id uint) (*Vehicle, error)
-    GetAll(offset, limit int) ([]Vehicle, int64, error)
+    GetAll(cursor *utils.Cursor, limit int) ([]Vehicle, error)
     Delete(id uint) error
 }
 
@@ -45,14 +47,17 @@ func (r *vehicleRepo) Delete(id uint) error {
     return r.db.Delete(&Vehicle{}, id).Error
 }
 
-func (r *vehicleRepo) GetAll(offset, limit int) ([]Vehicle, int64, error) {
+func (r *vehicleRepo) GetAll(cursor *utils.Cursor, limit int) ([]Vehicle, error) {
     var vehicles []Vehicle
-    var total int64
-    if err := r.db.Model(&Vehicle{}).Count(&total).Error; err != nil {
-        return nil, 0, err
+    
+    query := r.db.Model(&Vehicle{})
+
+    if cursor != nil {
+        query = query.Where("created_at < ? OR (created_at = ? AND id < ?)", cursor.LastCreatedAt, cursor.LastCreatedAt, cursor.LastID)
     }
-    if err := r.db.Order("created_at DESC").Offset(offset).Limit(limit).Find(&vehicles).Error; err != nil {
-        return nil, 0, err
+
+    if err := query.Order("created_at DESC, id DESC").Limit(limit + 1).Find(&vehicles).Error; err != nil {
+        return nil, err
     }
-    return vehicles, total, nil
+    return vehicles, nil
 }

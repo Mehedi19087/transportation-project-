@@ -3,6 +3,8 @@ package vehicle
 import (
     "errors"
     "fmt"
+    "transportation/internal/utils"
+
     "gorm.io/gorm"
 )
 
@@ -11,7 +13,7 @@ type VehicleService interface {
     GetVehicle(id uint) (*Vehicle, error)
     UpdateVehicle(id uint, req *UpdateVehicle) error
     DeleteVehicle(id uint) error
-    GetAllVehicle(page, pageSize int) ([]Vehicle, int64, error)
+    GetAllVehicle(cursorStr string, limit int) ([]Vehicle, string, error)
 }
 
 type vehicleService struct {
@@ -159,18 +161,27 @@ func (s *vehicleService) DeleteVehicle(id uint) error {
     return nil
 }
 
-func (s *vehicleService) GetAllVehicle(page, pageSize int) ([]Vehicle, int64, error) {
-    if page < 1 {
-        page = 1
+func (s *vehicleService) GetAllVehicle(cursorStr string, limit int) ([]Vehicle, string, error) {
+    if limit < 1 || limit > 10 {
+        limit = 10
     }
-    if pageSize < 1 || pageSize > 100 {
-        pageSize = 10
-    }
-    offset := (page - 1) * pageSize
 
-    vehicles, total, err := s.repo.GetAll(offset, pageSize)
+    cursor, err := utils.DecodeCursor(cursorStr)
     if err != nil {
-        return nil, 0, fmt.Errorf("list vehicles: %w", err)
+        return nil, "", fmt.Errorf("invalid cursor: %w", err)
     }
-    return vehicles, total, nil
+
+    vehicles, err := s.repo.GetAll(cursor, limit)
+    if err != nil {
+        return nil, "", fmt.Errorf("list vehicles: %w", err)
+    }
+
+    var nextCursor string
+    if len(vehicles) > limit {
+        lastItem := vehicles[limit-1]
+        nextCursor = utils.EncodeCursor(lastItem.CreatedAt, lastItem.ID)
+        vehicles = vehicles[:limit]
+    }
+
+    return vehicles, nextCursor, nil
 }

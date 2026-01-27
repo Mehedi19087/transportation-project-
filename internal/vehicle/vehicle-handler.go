@@ -119,20 +119,15 @@ func (h *VehicleHandler) DeleteVehicle(ctx *gin.Context) {
 }
 
 func (h *VehicleHandler) GetAllVehicle(ctx *gin.Context) {
-    pageStr := ctx.DefaultQuery("page", "1")
-    pageSizeStr := ctx.DefaultQuery("page_size", "10")
+    cursorStr := ctx.Query("cursor")
+    limitStr := ctx.DefaultQuery("limit", "10")
 
-    page, err := strconv.Atoi(pageStr)
-    if err != nil || page < 1 {
-        page = 1
+    limit, err := strconv.Atoi(limitStr)
+    if err != nil || limit < 1 {
+        limit = 10
     }
 
-    pageSize, err := strconv.Atoi(pageSizeStr)
-    if err != nil || pageSize < 1 {
-        pageSize = 10
-    }
-
-    vehicles, total, err := h.service.GetAllVehicle(page, pageSize)
+    vehicles, nextCursor, err := h.service.GetAllVehicle(cursorStr, limit)
     if err != nil {
         ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -141,9 +136,8 @@ func (h *VehicleHandler) GetAllVehicle(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, gin.H{
         "data": vehicles,
         "meta": gin.H{
-            "page":      page,
-            "page_size": pageSize,
-            "total":     total,
+            "next_cursor": nextCursor,
+            "has_more":    nextCursor != "",
         },
     })
 }
