@@ -156,9 +156,36 @@ func (s *service) GetAll(productID uint, page, pageSize int) ([]DailySideCash, i
 }
 
 func (s *service) Delete(id uint) error {
+	// 1. Get the record before deleting to know its Date and Balance
+	record, err := s.repo.GetByID(id)
+	if err != nil {
+		return fmt.Errorf("get daily side cash for delete: %w", err)
+	}
+
+	// 2. Calculate the difference for future records.
+	// We need to know what the 'carryOver' (start balance) for the NEXT record will be
+	// now that this record is gone. That 'carryOver' comes from the PREVIOUS record.
+	var prevBalance float64 = 0
+	prevRecord, err := s.repo.GetLastRecordBeforeDate(record.ProductID, record.Date)
+	if err == nil && prevRecord != nil {
+		prevBalance = prevRecord.RemainingBalance
+	}
+	
+	// The future records currently have `record.RemainingBalance` factored in.
+	// They SHOULD have `prevBalance` factored in instead.
+	// Diff = New_Baseline - Old_Baseline
+	diff := prevBalance - record.RemainingBalance
+
+	// 3. Delete the record
 	if err := s.repo.Delete(id); err != nil {
 		return fmt.Errorf("delete daily side cash: %w", err)
 	}
+
+	// 4. Update all future records with the difference
+	if err := s.repo.UpdateFutureBalances(record.ProductID, record.Date, diff); err != nil {
+		return fmt.Errorf("failed to update future balances after delete: %w", err)
+	}
+
 	return nil
 }
 

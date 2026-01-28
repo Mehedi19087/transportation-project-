@@ -16,6 +16,7 @@ type DailySideCashRepo interface {
 	GetByDate(productID uint, date time.Time) (*DailySideCash, error)
 	GetLastRecordBeforeDate(productID uint, date time.Time) (*DailySideCash, error)
 	GetFirstRecordAfterDate(productID uint, date time.Time) (*DailySideCash, error)
+	UpdateFutureBalances(productID uint, afterDate time.Time, diff float64) error
 }
 
 type dailySideCashRepo struct {
@@ -112,4 +113,14 @@ func (r *dailySideCashRepo) GetFirstRecordAfterDate(productID uint, date time.Ti
 		return nil, err
 	}
 	return &dailySideCash, nil
+}
+
+func (r *dailySideCashRepo) UpdateFutureBalances(productID uint, afterDate time.Time, diff float64) error {
+	dateStr := afterDate.Format("2006-01-02")
+	return r.db.Model(&DailySideCash{}).
+		Where("product_id = ? AND DATE(date) > ?", productID, dateStr).
+		Updates(map[string]interface{}{
+			"cash":              gorm.Expr("cash + ?", diff),
+			"remaining_balance": gorm.Expr("remaining_balance + ?", diff),
+		}).Error
 }
