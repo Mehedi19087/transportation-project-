@@ -34,14 +34,12 @@ func (s *service) Create(req *CreateDailySideCashDTO, productID uint) (*DailySid
 		return nil, fmt.Errorf("invalid date format (expected YYYY-MM-DD): %w", err)
 	}
 
-	// Calculate previous date
-	prevDate := d.AddDate(0, 0, -1)
-	//prevDateStr := prevDate.Format("2006-01-02")
-
-	// Fetch previous day's record
+	// Fetch last available record before the current date
 	var carryOver float64 = 0
-	prevRecord, err := s.repo.GetByDate(productID, prevDate)
+	prevRecord, err := s.repo.GetLastRecordBeforeDate(productID, d)
 	if err != nil {
+		// Log error if needed, but treat as 0 carryOver if strictly database error, 
+        // though implementation of GetLastRecordBeforeDate returns nil, nil for not found.
 		carryOver = 0
 	} else if prevRecord != nil {
 		carryOver = prevRecord.RemainingBalance
@@ -108,7 +106,7 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 
 	existing.RemainingBalance = existing.Cash - (existing.TripCost + existing.OtherCost)
 	if req.Cash != nil {
-		existing.WithoutRemaining = existing.WithoutRemaining + *req.Cash
+		existing.WithoutRemaining = existing.WithoutRemaining + *req.Cash 
 	}
 
 	if err := s.repo.Update(existing); err != nil {
@@ -118,21 +116,19 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 	newRemaining := existing.RemainingBalance
 	if oldRemaining != newRemaining {
 		diff := newRemaining - oldRemaining
-		nextDay := existing.Date.AddDate(0, 0, 1)
-
-		nextDayRecord, err := s.repo.GetByDate(existing.ProductID, nextDay)
-		if err == nil && nextDayRecord != nil {
-			nextDayRecord.Cash += diff
-			nextDayRecord.RemainingBalance += diff
-			if err := s.repo.Update(nextDayRecord); err != nil {
-				return fmt.Errorf("failed to update next day record: %w", err)
+		
+		nextRecord, err := s.repo.GetFirstRecordAfterDate(existing.ProductID, existing.Date)
+		if err == nil && nextRecord != nil {
+			nextRecord.Cash += diff
+			nextRecord.RemainingBalance += diff
+			if err := s.repo.Update(nextRecord); err != nil {
+				return fmt.Errorf("failed to update next record: %w", err)
 			}
 		}
 	}
 
 	return nil
 }
-
 func (s *service) Get(id uint) (*DailySideCash, error) {
 	rec, err := s.repo.GetByID(id)
 	if err != nil {

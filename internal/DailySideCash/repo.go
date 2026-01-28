@@ -14,6 +14,8 @@ type DailySideCashRepo interface {
 	Update(dailySideCash *DailySideCash) error
 	Delete(id uint) error
 	GetByDate(productID uint, date time.Time) (*DailySideCash, error)
+	GetLastRecordBeforeDate(productID uint, date time.Time) (*DailySideCash, error)
+	GetFirstRecordAfterDate(productID uint, date time.Time) (*DailySideCash, error)
 }
 
 type dailySideCashRepo struct {
@@ -84,4 +86,30 @@ func (r *dailySideCashRepo) GetByDate(productID uint, date time.Time) (*DailySid
       }
       return &dailySideCash, nil
 
+}
+
+func (r *dailySideCashRepo) GetLastRecordBeforeDate(productID uint, date time.Time) (*DailySideCash, error) {
+	var dailySideCash DailySideCash
+	dateStr := date.Format("2006-01-02")
+	err := r.db.Where("product_id = ? AND DATE(date) < ?", productID, dateStr).Order("date desc").First(&dailySideCash).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil // Return nil if no previous record found
+		}
+		return nil, err
+	}
+	return &dailySideCash, nil
+}
+
+func (r *dailySideCashRepo) GetFirstRecordAfterDate(productID uint, date time.Time) (*DailySideCash, error) {
+	var dailySideCash DailySideCash
+	dateStr := date.Format("2006-01-02")
+	err := r.db.Where("product_id = ? AND DATE(date) > ?", productID, dateStr).Order("date asc").First(&dailySideCash).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil // Return nil if no next record found
+		}
+		return nil, err
+	}
+	return &dailySideCash, nil
 }
