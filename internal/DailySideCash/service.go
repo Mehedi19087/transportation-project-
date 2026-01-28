@@ -103,12 +103,33 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 	if req.OtherCostDetails != nil {
 		existing.OtherCostDetails = *req.OtherCostDetails
 	}
+
+	oldRemaining := existing.RemainingBalance
+
 	existing.RemainingBalance = existing.Cash - (existing.TripCost + existing.OtherCost)
-	existing.WithoutRemaining = existing.WithoutRemaining + *req.Cash 
+	if req.Cash != nil {
+		existing.WithoutRemaining = existing.WithoutRemaining + *req.Cash
+	}
 
 	if err := s.repo.Update(existing); err != nil {
 		return fmt.Errorf("update daily side cash: %w", err)
 	}
+
+	newRemaining := existing.RemainingBalance
+	if oldRemaining != newRemaining {
+		diff := newRemaining - oldRemaining
+		nextDay := existing.Date.AddDate(0, 0, 1)
+
+		nextDayRecord, err := s.repo.GetByDate(existing.ProductID, nextDay)
+		if err == nil && nextDayRecord != nil {
+			nextDayRecord.Cash += diff
+			nextDayRecord.RemainingBalance += diff
+			if err := s.repo.Update(nextDayRecord); err != nil {
+				return fmt.Errorf("failed to update next day record: %w", err)
+			}
+		}
+	}
+
 	return nil
 }
 
