@@ -117,13 +117,9 @@ func (s *service) Update(id uint, req *UpdateDailySideCashDTO) error {
 	if oldRemaining != newRemaining {
 		diff := newRemaining - oldRemaining
 		
-		nextRecord, err := s.repo.GetFirstRecordAfterDate(existing.ProductID, existing.Date)
-		if err == nil && nextRecord != nil {
-			nextRecord.Cash += diff
-			nextRecord.RemainingBalance += diff
-			if err := s.repo.Update(nextRecord); err != nil {
-				return fmt.Errorf("failed to update next record: %w", err)
-			}
+		// Update ALL future records (Day 4, Day 5, ...) in one go
+		if err := s.repo.UpdateFutureBalances(existing.ProductID, existing.Date, diff); err != nil {
+			return fmt.Errorf("failed to update future balances: %w", err)
 		}
 	}
 
